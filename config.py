@@ -121,25 +121,26 @@ layouts = [
 ]
 
 widget_defaults = dict(
-    font="sans",
-    fontsize=12,
+    font="JetBrainsMono Nerd Font Bold",
+    fontsize=13,
     padding=3,
+    background=colors[14],
 )
+
 extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        bottom=bar.Bar(
+        top=bar.Bar(
             [
-                widget.CurrentLayout(),
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.WindowName(),
-                widget.Chord(
-                    chords_colors={
-                        "launch": ("#ff0000", "#ffffff"),
-                    },
-                    name_transform=lambda name: name.upper(),
+                widget.Image(
+                    filename="~/.config/qtile/logo.png",
+                    scale="False",
+                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn(terminal)},
+                    margin_x=10,
+                    margin_y=1,
+                    padding_y=1,
+                ),
                 ),
                 widget.TextBox("default config", name="default"),
                 widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),

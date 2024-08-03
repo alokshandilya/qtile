@@ -195,6 +195,12 @@ auto_minimize = True
 
 # When using the Wayland backend, this can be used to configure input devices.
 wl_input_rules = None
+wl_input_rules = {
+    "type:touchpad": InputConfig(tap=True, natural_scroll=True, left_handed=False),
+    # "*": InputConfig(left_handed=False),
+    # "type:keyboard": InputConfig(kb_options="ctrl:nocaps,compose:ralt"),
+}
+
 
 # xcursor theme (string or None) and size (integer) for Wayland backend
 wl_xcursor_theme = None

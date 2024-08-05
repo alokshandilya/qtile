@@ -25,6 +25,21 @@ keys = [
     Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
     Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
+    # monadtall keybindings
+    Key([mod], "h", lazy.layout.left()),
+    Key([mod], "l", lazy.layout.right()),
+    Key([mod], "j", lazy.layout.down()),
+    Key([mod], "k", lazy.layout.up()),
+    Key([mod, "shift"], "h", lazy.layout.swap_left()),
+    Key([mod, "shift"], "l", lazy.layout.swap_right()),
+    Key([mod, "shift"], "j", lazy.layout.shuffle_down()),
+    Key([mod, "shift"], "k", lazy.layout.shuffle_up()),
+    Key([mod], "i", lazy.layout.grow()),
+    Key([mod], "m", lazy.layout.shrink()),
+    Key([mod], "n", lazy.layout.reset()),
+    Key([mod, "shift"], "n", lazy.layout.normalize()),
+    Key([mod], "o", lazy.layout.maximize()),
+    Key([mod, "shift"], "space", lazy.layout.flip()),
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
     Key([mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
@@ -105,7 +120,12 @@ for i in groups:
     )
 
 layouts = [
-    layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
+    # layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=2, margin=4),
+    layout.MonadTall(
+        border_focus=colors[0], border_normal=colors[1],
+        border_width=2, single_border_width=2,
+        margin=7, single_margin=7,
+        ),
     layout.Max(),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),

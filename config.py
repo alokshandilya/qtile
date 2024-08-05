@@ -154,18 +154,36 @@ for i in groups:
                 desc="Switch to group {}".format(i.name),
             ),
             # mod + shift + group number = switch to & move focused window to group
-            Key(
-                [mod, "shift"],
-                i.name,
-                lazy.window.togroup(i.name, switch_group=True),
-                desc="Switch to & move focused window to group {}".format(i.name),
-            ),
+            # Key(
+            #     [mod, "shift"],
+            #     i.name,
+            #     lazy.window.togroup(i.name, switch_group=True),
+            #     desc="Switch to & move focused window to group {}".format(i.name),
+            # ),
             # Or, use below if you prefer not to switch to that group.
-            # # mod + shift + group number = move focused window to group
-            # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
-            #     desc="move focused window to group {}".format(i.name)),
+            # mod + shift + group number = move focused window to group
+            Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
+                desc="move focused window to group {}".format(i.name)),
         ]
     )
+
+colors = [
+    ["#689d6a", "#689d6a"],  # ACTIVE WORKSPACES 0
+    ["#282828", "#282828"],  # INACTIVE WORKSPACES 1
+    ["#504945", "#504945"],  # background lighter 2
+    ["#fb4934", "#fb4934"],  # red 3
+    ["#98971a", "#98971a"],  # green 4
+    ["#d79921", "#d79921"],  # yellow 5
+    ["#83a598", "#83a598"],  # blue 6
+    ["#b16286", "#b16286"],  # magenta 7
+    ["#8ec07c", "#8ec07c"],  # cyan 8
+    ["#ebdbb2", "#ebdbb2"],  # white 9
+    ["#928374", "#928374"],  # grey 10
+    ["#d65d0e", "#d65d0e"],  # orange 11
+    ["#689d6a", "#689d6a"],  # super cyan12
+    ["#458588", "#458588"],  # super blue 13
+    ["#1d2021", "#1d2021"],  # super dark background 14
+]
 
 layouts = [
     # layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=2, margin=4),
@@ -184,6 +202,27 @@ layouts = [
     # layout.RatioTile(),
     # layout.Tile(),
     # layout.TreeTab(),
+    layout.TreeTab(
+        font="JetBrainsMono Nerd Font",
+        fontsize=13,
+        border_width=0,
+        bg_color=colors[14],
+        active_bg=colors[0],
+        active_fg=colors[2],
+        inactive_bg=colors[1],
+        inactive_fg=colors[0],
+        padding_left=8,
+        padding_x=8,
+        padding_y=6,
+        sections=["ONE", "TWO", "THREE"],
+        section_fontsize=10,
+        section_fg=colors[7],
+        section_top=15,
+        section_bottom=15,
+        level_shift=8,
+        vspace=3,
+        panel_width=240
+        ),
     # layout.VerticalTile(),
     # layout.Zoomy(),
 ]

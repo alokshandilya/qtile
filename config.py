@@ -98,7 +98,7 @@ keys = [
     ),
     KeyChord([mod], "e", [
         Key([], "f", lazy.spawn("thunar")),
-        Key([], "e", lazy.spawn("emacsclient -c -a 'emacs'"))],
+        Key([], "e", lazy.spawn("emacsclient -c -a 'emacs' --eval '(dashboard-refresh-buffer)'"))],
     ),
     KeyChord([mod], "d", [
         Key([], "m", lazy.spawn("dmenu_run")),

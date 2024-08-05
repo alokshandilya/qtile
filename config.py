@@ -1,8 +1,8 @@
-
 import os, subprocess
 from libqtile import hook
+from libqtile.backend.wayland import InputConfig
 from libqtile import bar, layout, qtile, widget
-from libqtile.config import Click, Drag, Group, Key, Match, Screen
+from libqtile.config import Click, Drag, Group, Key, Match, Screen, KeyChord
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
 
@@ -25,6 +25,8 @@ keys = [
     Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
     Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
+    # screenshot keybinding with grim
+    Key([], "print", lazy.spawn("grim")),
     # monadtall keybindings
     Key([mod], "h", lazy.layout.left()),
     Key([mod], "l", lazy.layout.right()),
@@ -48,11 +50,11 @@ keys = [
     Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
     # Grow windows. If current window is on the edge of screen and direction
     # will be to screen edge - window would shrink.
-    Key([mod, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
-    Key([mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
-    Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
-    Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
-    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
+    # Key([mod, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
+    # Key([mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
+    # Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
+    # Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
+    # Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
     # Unsplit = 1 window displayed, like Max layout, but still with
@@ -66,7 +68,11 @@ keys = [
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
-    Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
+    Key([mod, "shift"], "q", lazy.window.kill(), desc="Kill focused window"),
+    Key([mod, "control"], "l", lazy.spawn("brightnessctl s 1%+"), desc="Increase brightness"),
+    Key([mod, "control"], "h", lazy.spawn("brightnessctl s 1%-"), desc="Decrease brightness"),
+    Key([mod, "control"], "k", lazy.spawn("amixer -q set Master 2%+"), desc="Increase volume"),
+    Key([mod, "control"], "j", lazy.spawn("amixer -q set Master 2%-"), desc="Decrease volume"),
     Key(
         [mod],
         "f",
@@ -74,9 +80,34 @@ keys = [
         desc="Toggle fullscreen on the focused window",
     ),
     Key([mod], "t", lazy.window.toggle_floating(), desc="Toggle floating on the focused window"),
-    Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
-    Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
+
+    KeyChord([mod], "x", [
+       Key([], "r", lazy.reload_config()),
+        Key([], "x", lazy.shutdown())],
+    ),
+
+    KeyChord([mod], "w", [
+        Key([], "b", lazy.spawn("firefox")),
+        Key([], "p", lazy.spawn("firefox --new-window https://web.whatsapp.com"))],
+    ),
+    KeyChord([mod], "b", [
+        Key([], "m", lazy.spawn("blueman-manager"))],
+    ),
+    KeyChord([mod], "g", [
+        Key([], "h", lazy.spawn("firefox --new-window https://github.com/alokshandilya"))],
+    ),
+    KeyChord([mod], "e", [
+        Key([], "f", lazy.spawn("thunar")),
+        Key([], "e", lazy.spawn("emacsclient -c -a 'emacs'"))],
+    ),
+    KeyChord([mod], "d", [
+        Key([], "m", lazy.spawn("dmenu_run")),
+        Key([], "r", lazy.spawn("rofi -show run"))],
+    ),
+    KeyChord([mod], "v", [
+        Key([], "c", lazy.spawn("code")),
+        Key([], "v", lazy.spawn("pavucontrol"))],
+    ),
 ]
 
 # Add key bindings to switch VTs in Wayland.

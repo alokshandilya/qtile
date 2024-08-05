@@ -248,18 +248,84 @@ screens = [
                     margin_y=1,
                     padding_y=1,
                 ),
+                widget.GroupBox(
+                    hide_unused=True,
+                    font="JetBrainsMono Nerd Font",
+                    fontsize=18,
+                    margin_y=3,
+                    margin_x=1,
+                    padding_y=2,
+                    padding_x=4,
+                    borderwidth=3,
+                    active=colors[8],
+                    inactive=colors[1],
+                    rounded=False,
+                    highlight_color=colors[2],
+                    highlight_method="line",
+                    this_current_screen_border=colors[7],
+                    this_screen_border=colors[4],
+                    other_current_screen_border=colors[7],
+                    other_screen_border=colors[4],
+                    disable_drag=True,
                 ),
-                widget.TextBox("default config", name="default"),
-                widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
-                # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
-                # widget.StatusNotifier(),
-                widget.Systray(),
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
-                widget.QuickExit(),
+                widget.TextBox(" ", name="sep"),
+                widget.CurrentLayoutIcon(
+                    foreground=colors[9],
+                ),
+                widget.TextBox(" ", name="sep"),
+                widget.WindowName(
+                    foreground=colors[9],
+                ),
+                widget.TextBox("   ", name="sep"),
+                # widget.Chord(
+                #     chords_colors={
+                #         "launch": ("#ff0000", "#ffffff"),
+                #     },
+                #     name_transform=lambda name: name.upper(),
+                # ),
+                widget.Net(
+                    format='🔻{down:.0f}{down_suffix} 🔺{up:.0f}{up_suffix}',
+                    interface="wlp3s0",
+                    foreground=colors[9],
+                ),
+                widget.TextBox("|", name="sep"),
+                widget.Memory(
+                    format="🧠 {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
+                    foreground=colors[9],
+                ),
+                widget.TextBox("|", name="sep"),
+                # widget.Wallpaper(
+                #     option="fill", directory="~/Pictures/wallpapers/",
+                #     wallpaper_command=["swww", "img"], label="🖼️",
+                #     foreground=colors[9],
+                # ),
+                # widget.TextBox("|", name="sep"),
+                widget.CPU(
+                    format="🗳️ {load_percent}%",
+                    foreground=colors[9],
+                ),
+                widget.TextBox("|", name="sep"),
+                widget.Battery(
+                    format="🔋 {percent:2.0%}", notify_below=97,
+                    foreground=colors[9],
+                ),
+                widget.TextBox("| 🔊", name="sep"),
+                widget.Volume(
+                    foreground=colors[9],
+                ),
+                widget.TextBox("|", name="sep"),
+                widget.Clock(
+                    format="📅 %a, %B %d %l:%M%p",
+                    foreground=colors[9],
+                ),
+                # Systray is incompatible with Wayland, consider using StatusNotifier instead
+                # widget.Systray(),
+                widget.StatusNotifier(),
             ],
             24,
             # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
+            background=colors[14],
         ),
         # You can uncomment this variable if you see that on X11 floating resize/moving is laggy
         # By default we handle these events delayed to already improve performance, however your system might still be struggling

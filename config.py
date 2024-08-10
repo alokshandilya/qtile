@@ -1,10 +1,23 @@
-import os, subprocess
+import os
+import subprocess
 from libqtile import hook
-from libqtile.backend.wayland import InputConfig
-from libqtile import bar, layout, qtile, widget
-from libqtile.config import Click, Drag, Group, Key, Match, Screen, KeyChord
+from libqtile.backend.wayland.inputs import InputConfig
+from libqtile import bar, layout, qtile
+from qtile_extras import widget
+from libqtile.config import (
+    Click,
+    Drag,
+    Group,
+    Key,
+    Match,
+    Screen,
+    KeyChord,
+    ScratchPad,
+    DropDown,
+)
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
+from qtile_extras.widget.decorations import BorderDecoration
 
 mod = "mod4"
 terminal = guess_terminal()
@@ -12,22 +25,20 @@ terminal = guess_terminal()
 
 @hook.subscribe.startup_once
 def autostart():
-    home = os.path.expanduser('~/.config/qtile/autostart.sh')
+    home = os.path.expanduser("~/.config/qtile/autostart.sh")
     subprocess.Popen([home])
 
 
+emacs_run = "emacsclient -c -a 'emacs' --eval '(dashboard-refresh-buffer)'"
+
 keys = [
-    # A list of available commands that can be bound to keys can be found
-    # at https://docs.qtile.org/en/latest/manual/config/lazy.html
-    # Switch between windows
     Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
     Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
     Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
-    Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
-    # screenshot keybinding with grim
+    Key([mod], "space", lazy.layout.next()),
+    Key([mod], "r", lazy.spawncmd()),
     Key([], "print", lazy.spawn("grim")),
-    # monadtall keybindings
     Key([mod], "h", lazy.layout.left()),
     Key([mod], "l", lazy.layout.right()),
     Key([mod], "j", lazy.layout.down()),
@@ -42,77 +53,44 @@ keys = [
     Key([mod, "shift"], "n", lazy.layout.normalize()),
     Key([mod], "o", lazy.layout.maximize()),
     Key([mod, "shift"], "space", lazy.layout.flip()),
-    # Move windows between left/right columns or move up/down in current stack.
-    # Moving out of range in Columns layout will create new column.
-    Key([mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
-    Key([mod, "shift"], "l", lazy.layout.shuffle_right(), desc="Move window to the right"),
-    Key([mod, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
-    Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
-    # Grow windows. If current window is on the edge of screen and direction
-    # will be to screen edge - window would shrink.
-    # Key([mod, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
-    # Key([mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
-    # Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
-    # Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
-    # Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
-    # Toggle between split and unsplit sides of stack.
-    # Split = all windows displayed
-    # Unsplit = 1 window displayed, like Max layout, but still with
-    # multiple stack panes
-    Key(
-        [mod, "shift"],
-        "Return",
-        lazy.layout.toggle_split(),
-        desc="Toggle between split and unsplit sides of stack",
-    ),
+    Key([mod, "shift"], "h", lazy.layout.shuffle_left()),
+    Key([mod, "shift"], "l", lazy.layout.shuffle_right()),
+    Key([mod, "shift"], "j", lazy.layout.shuffle_down()),
+    Key([mod, "shift"], "k", lazy.layout.shuffle_up()),
+    Key([mod, "shift"], "Return", lazy.layout.toggle_split()),
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
-    # Toggle between different layouts as defined below
+    Key([mod], "w", lazy.spawn("firefox"), desc="Launch Firefox"),
+    Key([mod], "grave", lazy.group["scratchpad"].dropdown_toggle("term")),
+    Key([mod], "q", lazy.group["scratchpad"].dropdown_toggle("chatgpt")),
+    Key([mod], "d", lazy.spawn("rofi -show drun")),
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod, "shift"], "q", lazy.window.kill(), desc="Kill focused window"),
-    Key([mod, "control"], "l", lazy.spawn("brightnessctl s 1%+"), desc="Increase brightness"),
-    Key([mod, "control"], "h", lazy.spawn("brightnessctl s 1%-"), desc="Decrease brightness"),
-    Key([mod, "control"], "k", lazy.spawn("amixer -q set Master 2%+"), desc="Increase volume"),
-    Key([mod, "control"], "j", lazy.spawn("amixer -q set Master 2%-"), desc="Decrease volume"),
-    Key(
+    Key([mod, "control"], "l", lazy.spawn("brightnessctl s 1%+")),
+    Key([mod, "control"], "h", lazy.spawn("brightnessctl s 1%-")),
+    Key([mod, "control"], "k", lazy.spawn("amixer -q set Master 2%+")),
+    Key([mod, "control"], "j", lazy.spawn("amixer -q set Master 2%-")),
+    Key([mod], "f", lazy.window.toggle_fullscreen()),
+    Key([mod], "t", lazy.window.toggle_floating()),
+    KeyChord(
+        [mod], "x", [Key([], "r", lazy.reload_config()), Key([], "x", lazy.shutdown())]
+    ),
+    KeyChord([mod], "b", [Key([], "m", lazy.spawn("blueman-manager"))]),
+    KeyChord(
         [mod],
-        "f",
-        lazy.window.toggle_fullscreen(),
-        desc="Toggle fullscreen on the focused window",
+        "e",
+        [
+            Key([], "f", lazy.group["scratchpad"].dropdown_toggle("file_manager")),
+            Key([], "f", lazy.spawn("thunar")),
+            Key([], "e", lazy.spawn(f"{emacs_run}")),
+        ],
     ),
-    Key([mod], "t", lazy.window.toggle_floating(), desc="Toggle floating on the focused window"),
-
-    KeyChord([mod], "x", [
-       Key([], "r", lazy.reload_config()),
-        Key([], "x", lazy.shutdown())],
-    ),
-
-    KeyChord([mod], "w", [
-        Key([], "b", lazy.spawn("firefox")),
-        Key([], "p", lazy.spawn("firefox --new-window https://web.whatsapp.com"))],
-    ),
-    KeyChord([mod], "b", [
-        Key([], "m", lazy.spawn("blueman-manager"))],
-    ),
-    KeyChord([mod], "g", [
-        Key([], "h", lazy.spawn("firefox --new-window https://github.com/alokshandilya"))],
-    ),
-    KeyChord([mod], "e", [
-        Key([], "f", lazy.spawn("thunar")),
-        Key([], "e", lazy.spawn("emacsclient -c -a 'emacs' --eval '(dashboard-refresh-buffer)'"))],
-    ),
-    KeyChord([mod], "d", [
-        Key([], "m", lazy.spawn("dmenu_run")),
-        Key([], "r", lazy.spawn("rofi -show run"))],
-    ),
-    KeyChord([mod], "v", [
-        Key([], "c", lazy.spawn("code")),
-        Key([], "v", lazy.spawn("pavucontrol"))],
+    KeyChord(
+        [mod],
+        "v",
+        [Key([], "c", lazy.spawn("code")), Key([], "v", lazy.spawn("pavucontrol"))],
     ),
 ]
 
-# Add key bindings to switch VTs in Wayland.
-# We can't check qtile.core.name in default config as it is loaded before qtile is started
-# We therefore defer the check until the key binding is run by using .when(func=...)
 for vt in range(1, 8):
     keys.append(
         Key(
@@ -125,14 +103,13 @@ for vt in range(1, 8):
 
 
 groups = []
-group_names = ["1", "2", "3", "4", "5", "6", "7", "8", "9",]
+group_names = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 # group_labels = ["1", "2", "3", "4", "5", "6", "7", "8", "9",]
 # group_labels = ["DEV", "WWW", "SYS", "DOC", "VBOX", "CHAT", "MUS", "VID", "GFX",]
 # static const char *tags[] = { "󰎦", "󰎩", "󰎬", "󰎮", "󰎰", "󰎵", "󰎸" , "󰎻", "󰎾" };
 # static const char *alttags[] = { "", "", };
-group_labels = ["󰎤", "󰎧", "󰎪", "󰎭", "󰎱", "󰎳", "󰎶", "󰎹", "󰎼",]
-
+group_labels = ["󰎤", "󰎧", "󰎪", "󰎭", "󰎱", "󰎳", "󰎶", "󰎹", "󰎼"]
 # group_layouts = ["monadtall", "monadtall", "tile", "tile", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall"]
 
 for i in range(len(group_names)):
@@ -141,7 +118,36 @@ for i in range(len(group_names)):
             name=group_names[i],
             # layout=group_layouts[i].lower(),
             label=group_labels[i],
-        ))
+        )
+    )
+# scratchpads
+groups.append(
+    ScratchPad(
+        "scratchpad",
+        [
+            DropDown(
+                "term",
+                f"{terminal}",
+                x=0.1,
+                y=0.015,
+                opacity=1.0,
+                width=0.80,
+                height=0.6,
+                on_focus_lost_hide=False,
+            ),
+            DropDown(
+                "chatgpt",
+                "firefox -new-window 'https://chatgpt.com'",
+                x=0.2825,
+                y=0.015,
+                width=0.435,
+                height=0.80,
+                opacity=1.0,
+                on_focus_lost_hide=False,
+            ),
+        ],
+    )
+)
 
 for i in groups:
     keys.extend(
@@ -162,8 +168,12 @@ for i in groups:
             # ),
             # Or, use below if you prefer not to switch to that group.
             # mod + shift + group number = move focused window to group
-            Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
-                desc="move focused window to group {}".format(i.name)),
+            Key(
+                [mod, "shift"],
+                i.name,
+                lazy.window.togroup(i.name),
+                desc="move focused window to group {}".format(i.name),
+            ),
         ]
     )
 
@@ -188,10 +198,16 @@ colors = [
 layouts = [
     # layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=2, margin=4),
     layout.MonadTall(
-        border_focus=colors[0], border_normal=colors[1],
-        border_width=2, single_border_width=2,
-        margin=7, single_margin=7,
-        ),
+        border_focus=colors[0],
+        border_normal=colors[1],
+        border_width=2,
+        single_border_width=2,
+        margin=8,
+        single_margin=12,
+        ratio=0.55,
+        new_client_position="top",
+        flip=True,
+    ),
     layout.Max(),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
@@ -202,7 +218,7 @@ layouts = [
     # layout.Tile(),
     # layout.TreeTab(),
     layout.TreeTab(
-        font="JetBrainsMono Nerd Font",
+        font="FiraCode Nerd Font Bold",
         fontsize=13,
         border_width=0,
         bg_color=colors[14],
@@ -220,17 +236,14 @@ layouts = [
         section_bottom=15,
         level_shift=8,
         vspace=3,
-        panel_width=240
-        ),
+        panel_width=240,
+    ),
     # layout.VerticalTile(),
     # layout.Zoomy(),
 ]
 
 widget_defaults = dict(
-    font="JetBrainsMono Nerd Font Bold",
-    fontsize=13,
-    padding=3,
-    background=colors[14],
+    font="FiraCode Nerd Font Bold", fontsize=12, padding=0, background=colors[14]
 )
 
 extension_defaults = widget_defaults.copy()
@@ -240,22 +253,21 @@ screens = [
         top=bar.Bar(
             [
                 widget.Image(
-                    filename="~/.config/qtile/logo.png",
+                    filename="~/.config/doom/me-gruv-circle.png",
                     scale="False",
-                    mouse_callbacks={'Button1': lambda: qtile.cmd_spawn(terminal)},
-                    margin_x=10,
+                    mouse_callbacks={"Button1": lambda: qtile.cmd_spawn(terminal)},
+                    margin_x=11,
                     margin_y=1,
-                    padding_y=1,
                 ),
                 widget.GroupBox(
                     hide_unused=True,
                     font="JetBrainsMono Nerd Font",
-                    fontsize=18,
-                    margin_y=3,
-                    margin_x=1,
-                    padding_y=2,
+                    fontsize=19,
+                    margin_y=4,
+                    margin_x=0,
+                    padding_y=0,
                     padding_x=4,
-                    borderwidth=3,
+                    borderwidth=2,
                     active=colors[8],
                     inactive=colors[1],
                     rounded=False,
@@ -267,64 +279,112 @@ screens = [
                     other_screen_border=colors[4],
                     disable_drag=True,
                 ),
-                widget.TextBox(" ", name="sep"),
+                widget.Spacer(length=8),
                 widget.CurrentLayoutIcon(
                     foreground=colors[9],
+                    padding=4,
+                    scale=0.75,
                 ),
-                widget.TextBox(" ", name="sep"),
+                widget.Prompt(
+                    font="FiraCode Nerd Font Mono Bold",
+                    foreground=colors[13],
+                    fontsize=13,
+                ),
+                widget.CurrentLayout(
+                    fontsize=13,
+                    foreground=colors[9],
+                    padding=5,
+                ),
+                widget.TextBox("|", name="sep"),
+                widget.Spacer(length=4),
                 widget.WindowName(
-                    foreground=colors[9],
+                    fontsize=13,
+                    foreground=colors[8],
+                    max_chars=40,
                 ),
-                widget.TextBox("   ", name="sep"),
-                # widget.Chord(
-                #     chords_colors={
-                #         "launch": ("#ff0000", "#ffffff"),
-                #     },
-                #     name_transform=lambda name: name.upper(),
-                # ),
                 widget.Net(
-                    format='🔻{down:.0f}{down_suffix} 🔺{up:.0f}{up_suffix}',
-                    interface="wlp3s0",
-                    foreground=colors[9],
+                    # format='🔻{down:.0f}{down_suffix} 🔺{up:.0f}{up_suffix}',
+                    format=" {down:.0f}{down_suffix}  {up:.0f}{up_suffix}",
+                    interface="wlan0",
+                    padding=0,
+                    margin=0,
+                    foreground=colors[13],
+                    decorations=[
+                        BorderDecoration(
+                            border_width=[0, 0, 2, 0],
+                            colour=colors[13],
+                        )
+                    ],
                 ),
-                widget.TextBox("|", name="sep"),
+                widget.Spacer(length=8),
                 widget.Memory(
-                    format="🧠 {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
-                    foreground=colors[9],
+                    # format="🖥 {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
+                    format="  {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
+                    foreground=colors[7],
+                    decorations=[
+                        BorderDecoration(
+                            border_width=[0, 0, 2, 0],
+                            colour=colors[7],
+                        )
+                    ],
                 ),
-                widget.TextBox("|", name="sep"),
-                # widget.Wallpaper(
-                #     option="fill", directory="~/Pictures/wallpapers/",
-                #     wallpaper_command=["swww", "img"], label="🖼️",
-                #     foreground=colors[9],
-                # ),
-                # widget.TextBox("|", name="sep"),
+                widget.Spacer(length=8),
                 widget.CPU(
-                    format="🗳️ {load_percent}%",
-                    foreground=colors[9],
+                    # format="🗳️ {load_percent}%",
+                    format="  {load_percent}%",
+                    foreground=colors[11],
+                    decorations=[
+                        BorderDecoration(
+                            border_width=[0, 0, 2, 0],
+                            colour=colors[11],
+                        )
+                    ],
                 ),
-                widget.TextBox("|", name="sep"),
+                widget.Spacer(length=8),
                 widget.Battery(
-                    format="🔋 {percent:2.0%}", notify_below=97,
-                    foreground=colors[9],
+                    # format="🔋 {percent:2.0%}", notify_below=97,
+                    format="  {percent:2.0%}",
+                    notify_below=10,
+                    foreground=colors[12],
+                    decorations=[
+                        BorderDecoration(
+                            border_width=[0, 0, 2, 0],
+                            colour=colors[12],
+                        )
+                    ],
                 ),
-                widget.TextBox("| 🔊", name="sep"),
+                widget.Spacer(length=8),
                 widget.Volume(
-                    foreground=colors[9],
+                    # fmt="🔊 {}",
+                    fmt="  {}",
+                    foreground=colors[5],
+                    decorations=[
+                        BorderDecoration(
+                            border_width=[0, 0, 2, 0],
+                            colour=colors[5],
+                        )
+                    ],
                 ),
-                widget.TextBox("|", name="sep"),
+                widget.Spacer(length=8),
                 widget.Clock(
-                    format="📅 %a, %B %d %l:%M%p",
-                    foreground=colors[9],
+                    # format="📅 %a, %B %d %l:%M%p",
+                    format="  %a, %B %d %l:%M%p",
+                    foreground=colors[4],
+                    decorations=[
+                        BorderDecoration(
+                            border_width=[0, 0, 2, 0],
+                            colour=colors[4],
+                        )
+                    ],
                 ),
+                widget.Spacer(length=8),
                 # Systray is incompatible with Wayland, consider using StatusNotifier instead
                 # widget.Systray(),
                 widget.StatusNotifier(),
             ],
-            24,
-            # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
+            28,
+            # border_width=[3, 0, 3, 0],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
-            background=colors[14],
         ),
         # You can uncomment this variable if you see that on X11 floating resize/moving is laggy
         # By default we handle these events delayed to already improve performance, however your system might still be struggling
@@ -377,7 +437,9 @@ auto_minimize = True
 wl_input_rules = {
     "type:touchpad": InputConfig(tap=True, natural_scroll=True, left_handed=False),
     # "*": InputConfig(left_handed=False),
-    "type:keyboard": InputConfig(kb_options="caps:escape,compose:ralt"),
+    "type:keyboard": InputConfig(
+        kb_options="caps:escape,compose:ralt", kb_repeat_rate=40, kb_repeat_delay=210
+    ),
 }
 
 # xcursor theme (string or None) and size (integer) for Wayland backend

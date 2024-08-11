@@ -16,11 +16,12 @@ from libqtile.config import (
     DropDown,
 )
 from libqtile.lazy import lazy
-from libqtile.utils import guess_terminal
 from qtile_extras.widget.decorations import BorderDecoration
 
 mod = "mod4"
-terminal = guess_terminal()
+terminal = "kitty"
+gpu = "DRI_PRIME=pci-0000_01_00_0 __VK_LAYER_NV_optimus=NVIDIA_only __GLX_VENDOR_LIBRARY_NAME=nvidia"
+gpu_term = "alacritty"
 
 
 @hook.subscribe.startup_once
@@ -59,6 +60,7 @@ keys = [
     Key([mod, "shift"], "k", lazy.layout.shuffle_up()),
     Key([mod, "shift"], "Return", lazy.layout.toggle_split()),
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
+    Key([mod, "shift"], "Return", lazy.spawn(f"env {gpu} {gpu_term}"), desc="Launch terminal"),
     Key([mod], "w", lazy.spawn("firefox"), desc="Launch Firefox"),
     Key([mod], "grave", lazy.group["scratchpad"].dropdown_toggle("term")),
     Key([mod], "q", lazy.group["scratchpad"].dropdown_toggle("chatgpt")),
@@ -87,7 +89,7 @@ keys = [
     KeyChord(
         [mod],
         "v",
-        [Key([], "c", lazy.spawn("code")), Key([], "v", lazy.spawn("pavucontrol"))],
+        [Key([], "c", lazy.spawn(f"env {gpu} code")), Key([], "v", lazy.spawn("pavucontrol"))],
     ),
 ]
 
@@ -438,7 +440,7 @@ wl_input_rules = {
     "type:touchpad": InputConfig(tap=True, natural_scroll=True, left_handed=False),
     # "*": InputConfig(left_handed=False),
     "type:keyboard": InputConfig(
-        kb_options="caps:escape,compose:ralt", kb_repeat_rate=40, kb_repeat_delay=210
+        kb_options="caps:escape,compose:ralt", kb_repeat_rate=40, kb_repeat_delay=260
     ),
 }
 

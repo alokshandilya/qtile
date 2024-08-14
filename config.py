@@ -1,21 +1,20 @@
 import os
 import subprocess
-from libqtile import hook
+from libqtile import bar, hook, layout, qtile
 from libqtile.backend.wayland.inputs import InputConfig
-from libqtile import bar, layout, qtile
-from qtile_extras import widget
 from libqtile.config import (
     Click,
     Drag,
+    DropDown,
     Group,
     Key,
-    Match,
-    Screen,
     KeyChord,
+    Match,
     ScratchPad,
-    DropDown,
+    Screen,
 )
 from libqtile.lazy import lazy
+from qtile_extras import widget
 from qtile_extras.widget.decorations import BorderDecoration
 
 mod = "mod4"
@@ -60,8 +59,13 @@ keys = [
     Key([mod, "shift"], "k", lazy.layout.shuffle_up()),
     Key([mod, "shift"], "Return", lazy.layout.toggle_split()),
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
-    Key([mod, "shift"], "Return", lazy.spawn(f"env {gpu} {gpu_term}"), desc="Launch terminal"),
-    Key([mod], "w", lazy.spawn("firefox"), desc="Launch Firefox"),
+    Key(
+        [mod, "shift"],
+        "Return",
+        lazy.spawn(f"env {gpu} {gpu_term}"),
+        desc="Launch terminal",
+    ),
+    Key([mod], "w", lazy.spawn("librewolf"), desc="Launch Librewolf"),
     Key([mod], "grave", lazy.group["scratchpad"].dropdown_toggle("term")),
     Key([mod], "q", lazy.group["scratchpad"].dropdown_toggle("chatgpt")),
     Key([mod], "d", lazy.spawn("rofi -show drun")),
@@ -89,7 +93,12 @@ keys = [
     KeyChord(
         [mod],
         "v",
-        [Key([], "c", lazy.spawn(f"env {gpu} code")), Key([], "v", lazy.spawn("pavucontrol"))],
+        [
+            # Key([], "c", lazy.spawn(f"env {gpu} code")),
+            # Key([], "c", lazy.spawn(f"env {gpu} zeditor")),
+            Key([], "c", lazy.spawn("zeditor")),
+            Key([], "v", lazy.spawn("pavucontrol")),
+        ],
     ),
 ]
 
@@ -139,7 +148,7 @@ groups.append(
             ),
             DropDown(
                 "chatgpt",
-                "firefox -new-window 'https://chatgpt.com'",
+                "librewolf -new-window 'https://chatgpt.com'",
                 x=0.2825,
                 y=0.015,
                 width=0.435,
@@ -200,8 +209,8 @@ colors = [
 layouts = [
     # layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=2, margin=4),
     layout.MonadTall(
-        border_focus=colors[0],
-        border_normal=colors[1],
+        border_focus=colors[12],
+        border_normal=colors[2],
         border_width=2,
         single_border_width=2,
         margin=8,
@@ -245,7 +254,7 @@ layouts = [
 ]
 
 widget_defaults = dict(
-    font="FiraCode Nerd Font Bold", fontsize=12, padding=0, background=colors[14]
+    font="JetBrainsMono Nerd Font Bold", fontsize=13, padding=0, background=colors[14]
 )
 
 extension_defaults = widget_defaults.copy()
@@ -300,7 +309,7 @@ screens = [
                 widget.TextBox("|", name="sep"),
                 widget.Spacer(length=4),
                 widget.WindowName(
-                    fontsize=13,
+                    fontsize=14,
                     foreground=colors[8],
                     max_chars=40,
                 ),
@@ -440,7 +449,9 @@ wl_input_rules = {
     "type:touchpad": InputConfig(tap=True, natural_scroll=True, left_handed=False),
     # "*": InputConfig(left_handed=False),
     "type:keyboard": InputConfig(
-        kb_options="caps:escape,compose:ralt", kb_repeat_rate=40, kb_repeat_delay=260
+        kb_options="caps:escape,compose:ralt",
+        kb_repeat_rate=40,
+        kb_repeat_delay=210,
     ),
 }
 

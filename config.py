@@ -21,6 +21,7 @@ mod = "mod4"
 terminal = "kitty"
 gpu = "DRI_PRIME=pci-0000_01_00_0 __VK_LAYER_NV_optimus=NVIDIA_only __GLX_VENDOR_LIBRARY_NAME=nvidia"
 gpu_term = "alacritty"
+uptime_script = "/home/aloks/.local/bin/dwmblocks/upt"
 
 
 @hook.subscribe.startup_once
@@ -324,6 +325,21 @@ screens = [
                         BorderDecoration(
                             border_width=[0, 0, 2, 0],
                             colour=colors[13],
+                        )
+                    ],
+                ),
+                widget.Spacer(length=8),
+                widget.GenPollText(
+                    update_interval=60,  # Set the update interval
+                    func=lambda: subprocess.check_output([uptime_script])
+                    .decode("utf-8")
+                    .strip(),
+                    fmt="󱑀 {}",
+                    foreground=colors[4],
+                    decorations=[
+                        BorderDecoration(
+                            border_width=[0, 0, 2, 0],
+                            colour=colors[4],
                         )
                     ],
                 ),

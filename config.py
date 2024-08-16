@@ -1,5 +1,6 @@
 import os
 import subprocess
+
 from libqtile import bar, hook, layout, qtile
 from libqtile.backend.wayland.inputs import InputConfig
 from libqtile.config import (
@@ -19,7 +20,9 @@ from qtile_extras.widget.decorations import BorderDecoration
 
 mod = "mod4"
 terminal = "kitty"
-gpu = "DRI_PRIME=pci-0000_01_00_0 __VK_LAYER_NV_optimus=NVIDIA_only __GLX_VENDOR_LIBRARY_NAME=nvidia"
+gpu = "DRI_PRIME=pci-0000_01_00_0 __VK_LAYER_NV_optimus=NVIDIA_only\
+ __GLX_VENDOR_LIBRARY_NAME=nvidia"
+
 gpu_term = "alacritty"
 uptime_script = "/home/aloks/.local/bin/dwmblocks/upt"
 
@@ -79,14 +82,18 @@ keys = [
     Key([mod], "f", lazy.window.toggle_fullscreen()),
     Key([mod], "t", lazy.window.toggle_floating()),
     KeyChord(
-        [mod], "x", [Key([], "r", lazy.reload_config()), Key([], "x", lazy.shutdown())]
+        [mod],
+        "x",
+        [
+            Key([], "r", lazy.reload_config()),
+            Key([], "x", lazy.shutdown()),
+        ],
     ),
     KeyChord([mod], "b", [Key([], "m", lazy.spawn("blueman-manager"))]),
     KeyChord(
         [mod],
         "e",
         [
-            Key([], "f", lazy.group["scratchpad"].dropdown_toggle("file_manager")),
             Key([], "f", lazy.spawn("thunar")),
             Key([], "e", lazy.spawn(f"{emacs_run}")),
         ],
@@ -108,7 +115,9 @@ for vt in range(1, 8):
         Key(
             ["control", "mod1"],
             f"f{vt}",
-            lazy.core.change_vt(vt).when(func=lambda: qtile.core.name == "wayland"),
+            lazy.core.change_vt(vt).when(
+                func=lambda: qtile.core.name == "wayland",
+            ),
             desc=f"Switch to VT{vt}",
         )
     )
@@ -116,13 +125,7 @@ for vt in range(1, 8):
 
 groups = []
 group_names = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-
-# group_labels = ["1", "2", "3", "4", "5", "6", "7", "8", "9",]
-# group_labels = ["DEV", "WWW", "SYS", "DOC", "VBOX", "CHAT", "MUS", "VID", "GFX",]
-# static const char *tags[] = { "󰎦", "󰎩", "󰎬", "󰎮", "󰎰", "󰎵", "󰎸" , "󰎻", "󰎾" };
-# static const char *alttags[] = { "", "", };
 group_labels = ["󰎤", "󰎧", "󰎪", "󰎭", "󰎱", "󰎳", "󰎶", "󰎹", "󰎼"]
-# group_layouts = ["monadtall", "monadtall", "tile", "tile", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall"]
 
 for i in range(len(group_names)):
     groups.append(
@@ -171,15 +174,6 @@ for i in groups:
                 lazy.group[i.name].toscreen(),
                 desc="Switch to group {}".format(i.name),
             ),
-            # mod + shift + group number = switch to & move focused window to group
-            # Key(
-            #     [mod, "shift"],
-            #     i.name,
-            #     lazy.window.togroup(i.name, switch_group=True),
-            #     desc="Switch to & move focused window to group {}".format(i.name),
-            # ),
-            # Or, use below if you prefer not to switch to that group.
-            # mod + shift + group number = move focused window to group
             Key(
                 [mod, "shift"],
                 i.name,
@@ -208,9 +202,13 @@ colors = [
 ]
 
 layouts = [
-    # layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=2, margin=4),
+    # layout.Columns(
+    #     border_focus_stack=["#d75f5f", "#8f3d3d"],
+    #     border_width=2,
+    #     margin=4,
+    # ),
     layout.MonadTall(
-        border_focus=colors[12],
+        border_focus=colors[8],
         border_normal=colors[2],
         border_width=2,
         single_border_width=2,
@@ -255,7 +253,10 @@ layouts = [
 ]
 
 widget_defaults = dict(
-    font="JetBrainsMono Nerd Font Bold", fontsize=13, padding=0, background=colors[14]
+    font="JetBrainsMono Nerd Font Bold",
+    fontsize=13,
+    padding=0,
+    background=colors[14],
 )
 
 extension_defaults = widget_defaults.copy()
@@ -267,7 +268,9 @@ screens = [
                 widget.Image(
                     filename="~/.config/doom/me-gruv-circle.png",
                     scale="False",
-                    mouse_callbacks={"Button1": lambda: qtile.cmd_spawn(terminal)},
+                    mouse_callbacks={
+                        "Button1": lambda: qtile.cmd_spawn(terminal),
+                    },
                     margin_x=11,
                     margin_y=1,
                 ),
@@ -312,7 +315,7 @@ screens = [
                 widget.WindowName(
                     fontsize=14,
                     foreground=colors[8],
-                    max_chars=40,
+                    max_chars=90,
                 ),
                 widget.Net(
                     # format='🔻{down:.0f}{down_suffix} 🔺{up:.0f}{up_suffix}',
@@ -405,18 +408,15 @@ screens = [
                     ],
                 ),
                 widget.Spacer(length=8),
-                # Systray is incompatible with Wayland, consider using StatusNotifier instead
+                # consider using StatusNotifier instead for wayland
                 # widget.Systray(),
                 widget.StatusNotifier(),
             ],
             28,
             # border_width=[3, 0, 3, 0],  # Draw top and bottom borders
-            # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
+            # Borders are magenta
+            # border_color=["ff00ff", "000000", "ff00ff", "000000"]
         ),
-        # You can uncomment this variable if you see that on X11 floating resize/moving is laggy
-        # By default we handle these events delayed to already improve performance, however your system might still be struggling
-        # This variable is set to None (no cap) by default, but you can set it to 60 to indicate that you limit it to 60 events per second
-        # x11_drag_polling_rate = 60,
     ),
 ]
 
@@ -429,7 +429,10 @@ mouse = [
         start=lazy.window.get_position(),
     ),
     Drag(
-        [mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()
+        [mod],
+        "Button3",
+        lazy.window.set_size_floating(),
+        start=lazy.window.get_size(),
     ),
     Click([mod], "Button2", lazy.window.bring_to_front()),
 ]
@@ -442,7 +445,7 @@ floats_kept_above = True
 cursor_warp = False
 floating_layout = layout.Floating(
     float_rules=[
-        # Run the utility of `xprop` to see the wm class and name of an X client.
+        # `xprop` to see the wm class and name of an X client.
         *layout.Floating.default_float_rules,
         Match(wm_class="confirmreset"),  # gitk
         Match(wm_class="makebranch"),  # gitk
@@ -462,7 +465,11 @@ auto_minimize = True
 
 # When using the Wayland backend, this can be used to configure input devices.
 wl_input_rules = {
-    "type:touchpad": InputConfig(tap=True, natural_scroll=True, left_handed=False),
+    "type:touchpad": InputConfig(
+        tap=True,
+        natural_scroll=True,
+        left_handed=False,
+    ),
     # "*": InputConfig(left_handed=False),
     "type:keyboard": InputConfig(
         kb_options="caps:escape,compose:ralt",
@@ -475,12 +482,6 @@ wl_input_rules = {
 wl_xcursor_theme = "Qogir-manjaro-light"
 wl_xcursor_size = 24
 
-# XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
-# string besides java UI toolkits; you can see several discussions on the
-# mailing lists, GitHub issues, and other WM documentation that suggest setting
-# this string if your java app doesn't work correctly. We may as well just lie
-# and say that we're a working one by default.
-#
 # We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
 # java that happens to be on java's whitelist.
 wmname = "LG3D"

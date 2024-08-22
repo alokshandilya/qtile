@@ -20,8 +20,7 @@ from qtile_extras.widget.decorations import BorderDecoration
 
 mod = "mod4"
 terminal = "kitty"
-gpu = "DRI_PRIME=pci-0000_01_00_0 __VK_LAYER_NV_optimus=NVIDIA_only\
- __GLX_VENDOR_LIBRARY_NAME=nvidia"
+gpu = "prime-run"
 
 gpu_term = "alacritty"
 uptime_script = "/home/aloks/.local/bin/dwmblocks/upt"
@@ -32,8 +31,6 @@ def autostart():
     home = os.path.expanduser("~/.config/qtile/autostart.sh")
     subprocess.Popen([home])
 
-
-emacs_run = "emacsclient -c -a 'emacs' --eval '(dashboard-refresh-buffer)'"
 
 keys = [
     Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
@@ -69,7 +66,7 @@ keys = [
         lazy.spawn(f"env {gpu} {gpu_term}"),
         desc="Launch terminal",
     ),
-    Key([mod], "w", lazy.spawn("librewolf"), desc="Launch Librewolf"),
+    Key([mod], "w", lazy.spawn("firefox"), desc="Launch Firefox"),
     Key([mod], "grave", lazy.group["scratchpad"].dropdown_toggle("term")),
     Key([mod], "q", lazy.group["scratchpad"].dropdown_toggle("chatgpt")),
     Key([mod], "d", lazy.spawn("rofi -show drun")),
@@ -95,7 +92,6 @@ keys = [
         "e",
         [
             Key([], "f", lazy.spawn("thunar")),
-            Key([], "e", lazy.spawn(f"{emacs_run}")),
         ],
     ),
     KeyChord(
@@ -103,8 +99,8 @@ keys = [
         "v",
         [
             # Key([], "c", lazy.spawn(f"env {gpu} code")),
-            # Key([], "c", lazy.spawn(f"env {gpu} zeditor")),
-            Key([], "c", lazy.spawn("zeditor")),
+            Key([], "c", lazy.spawn(f"env {gpu} zeditor")),
+            # Key([], "c", lazy.spawn("zeditor")),
             Key([], "v", lazy.spawn("pavucontrol")),
         ],
     ),
@@ -152,7 +148,7 @@ groups.append(
             ),
             DropDown(
                 "chatgpt",
-                "librewolf -new-window 'https://chatgpt.com'",
+                "firefox -new-window 'https://chatgpt.com'",
                 x=0.2825,
                 y=0.015,
                 width=0.435,
@@ -226,28 +222,27 @@ layouts = [
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
-    # layout.TreeTab(),
-    layout.TreeTab(
-        font="FiraCode Nerd Font Bold",
-        fontsize=13,
-        border_width=0,
-        bg_color=colors[14],
-        active_bg=colors[0],
-        active_fg=colors[2],
-        inactive_bg=colors[1],
-        inactive_fg=colors[0],
-        padding_left=8,
-        padding_x=8,
-        padding_y=6,
-        sections=["ONE", "TWO", "THREE"],
-        section_fontsize=10,
-        section_fg=colors[7],
-        section_top=15,
-        section_bottom=15,
-        level_shift=8,
-        vspace=3,
-        panel_width=240,
-    ),
+    # layout.TreeTab(
+    #     font="FiraCode Nerd Font Bold",
+    #     fontsize=13,
+    #     border_width=0,
+    #     bg_color=colors[14],
+    #     active_bg=colors[0],
+    #     active_fg=colors[2],
+    #     inactive_bg=colors[1],
+    #     inactive_fg=colors[0],
+    #     padding_left=8,
+    #     padding_x=8,
+    #     padding_y=6,
+    #     sections=["ONE", "TWO", "THREE"],
+    #     section_fontsize=10,
+    #     section_fg=colors[7],
+    #     section_top=15,
+    #     section_bottom=15,
+    #     level_shift=8,
+    #     vspace=3,
+    #     panel_width=240,
+    # ),
     # layout.VerticalTile(),
     # layout.Zoomy(),
 ]

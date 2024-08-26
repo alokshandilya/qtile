@@ -19,7 +19,7 @@ from qtile_extras import widget
 from qtile_extras.widget.decorations import BorderDecoration
 
 mod = "mod4"
-terminal = "kitty"
+terminal = "wezterm"
 gpu = "prime-run"
 
 gpu_term = "alacritty"
@@ -138,7 +138,7 @@ groups.append(
         [
             DropDown(
                 "term",
-                f"{terminal}",
+                "kitty",
                 x=0.1,
                 y=0.015,
                 opacity=1.0,

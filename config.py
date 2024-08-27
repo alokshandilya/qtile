@@ -19,10 +19,10 @@ from qtile_extras import widget
 from qtile_extras.widget.decorations import BorderDecoration
 
 mod = "mod4"
-terminal = "wezterm"
+terminal = "kitty"
 gpu = "prime-run"
 
-gpu_term = "alacritty"
+gpu_term = "kitty"
 uptime_script = "/home/aloks/.local/bin/dwmblocks/upt"
 
 
@@ -39,7 +39,7 @@ keys = [
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
     Key([mod], "space", lazy.layout.next()),
     Key([mod], "r", lazy.spawncmd()),
-    Key([], "print", lazy.spawn("grim")),
+    Key([], "print", lazy.spawn('grim -g "$(slurp)"')),
     Key([mod], "h", lazy.layout.left()),
     Key([mod], "l", lazy.layout.right()),
     Key([mod], "j", lazy.layout.down()),
@@ -106,6 +106,11 @@ keys = [
     ),
 ]
 
+# Add key bindings to switch VTs in Wayland.
+# We can't check qtile.core.name in default config as it is loaded before
+# qtile is started
+# We therefore defer the check until the key binding is run by using
+# .when(func=...)
 for vt in range(1, 8):
     keys.append(
         Key(
@@ -209,42 +214,12 @@ layouts = [
         border_width=2,
         single_border_width=2,
         margin=8,
-        single_margin=12,
+        single_margin=10,
         ratio=0.55,
         new_client_position="top",
         flip=True,
     ),
     layout.Max(),
-    # Try more layouts by unleashing below layouts.
-    # layout.Stack(num_stacks=2),
-    # layout.Bsp(),
-    # layout.Matrix(),
-    # layout.MonadWide(),
-    # layout.RatioTile(),
-    # layout.Tile(),
-    # layout.TreeTab(
-    #     font="FiraCode Nerd Font Bold",
-    #     fontsize=13,
-    #     border_width=0,
-    #     bg_color=colors[14],
-    #     active_bg=colors[0],
-    #     active_fg=colors[2],
-    #     inactive_bg=colors[1],
-    #     inactive_fg=colors[0],
-    #     padding_left=8,
-    #     padding_x=8,
-    #     padding_y=6,
-    #     sections=["ONE", "TWO", "THREE"],
-    #     section_fontsize=10,
-    #     section_fg=colors[7],
-    #     section_top=15,
-    #     section_bottom=15,
-    #     level_shift=8,
-    #     vspace=3,
-    #     panel_width=240,
-    # ),
-    # layout.VerticalTile(),
-    # layout.Zoomy(),
 ]
 
 widget_defaults = dict(

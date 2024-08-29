@@ -67,8 +67,6 @@ keys = [
         desc="Launch terminal",
     ),
     Key([mod], "w", lazy.spawn("firefox"), desc="Launch Firefox"),
-    Key([mod], "grave", lazy.group["scratchpad"].dropdown_toggle("term")),
-    Key([mod], "q", lazy.group["scratchpad"].dropdown_toggle("chatgpt")),
     Key([mod], "d", lazy.spawn("rofi -show drun")),
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod, "shift"], "q", lazy.window.kill(), desc="Kill focused window"),
@@ -84,6 +82,7 @@ keys = [
         [
             Key([], "r", lazy.reload_config()),
             Key([], "x", lazy.shutdown()),
+            Key([], "p", lazy.spawn("shutdown -h now")),
         ],
     ),
     KeyChord([mod], "b", [Key([], "m", lazy.spawn("blueman-manager"))]),
@@ -106,24 +105,6 @@ keys = [
     ),
 ]
 
-# Add key bindings to switch VTs in Wayland.
-# We can't check qtile.core.name in default config as it is loaded before
-# qtile is started
-# We therefore defer the check until the key binding is run by using
-# .when(func=...)
-for vt in range(1, 8):
-    keys.append(
-        Key(
-            ["control", "mod1"],
-            f"f{vt}",
-            lazy.core.change_vt(vt).when(
-                func=lambda: qtile.core.name == "wayland",
-            ),
-            desc=f"Switch to VT{vt}",
-        )
-    )
-
-
 groups = []
 group_names = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 group_labels = ["󰎤", "󰎧", "󰎪", "󰎭", "󰎱", "󰎳", "󰎶", "󰎹", "󰎼"]
@@ -132,10 +113,10 @@ for i in range(len(group_names)):
     groups.append(
         Group(
             name=group_names[i],
-            # layout=group_layouts[i].lower(),
             label=group_labels[i],
         )
     )
+
 # scratchpads
 groups.append(
     ScratchPad(
@@ -165,10 +146,10 @@ groups.append(
     )
 )
 
+
 for i in groups:
     keys.extend(
         [
-            # mod + group number = switch to group
             Key(
                 [mod],
                 i.name,
@@ -181,8 +162,31 @@ for i in groups:
                 lazy.window.togroup(i.name),
                 desc="move focused window to group {}".format(i.name),
             ),
+            Key(
+                [mod],
+                "grave",
+                lazy.group["scratchpad"].dropdown_toggle("term"),
+            ),
+            Key(
+                [mod],
+                "q",
+                lazy.group["scratchpad"].dropdown_toggle("chatgpt"),
+            ),
         ]
     )
+
+for vt in range(1, 8):
+    keys.append(
+        Key(
+            ["control", "mod1"],
+            f"f{vt}",
+            lazy.core.change_vt(vt).when(
+                func=lambda: qtile.core.name == "wayland",
+            ),
+            desc=f"Switch to VT{vt}",
+        )
+    )
+
 
 colors = [
     ["#689d6a", "#689d6a"],  # ACTIVE WORKSPACES 0
@@ -203,11 +207,6 @@ colors = [
 ]
 
 layouts = [
-    # layout.Columns(
-    #     border_focus_stack=["#d75f5f", "#8f3d3d"],
-    #     border_width=2,
-    #     margin=4,
-    # ),
     layout.MonadTall(
         border_focus=colors[8],
         border_normal=colors[2],
@@ -247,12 +246,12 @@ screens = [
                 widget.GroupBox(
                     hide_unused=True,
                     font="JetBrainsMono Nerd Font",
-                    fontsize=19,
+                    fontsize=18,
                     margin_y=4,
                     margin_x=0,
                     padding_y=0,
                     padding_x=4,
-                    borderwidth=2,
+                    borderwidth=3,
                     active=colors[8],
                     inactive=colors[1],
                     rounded=False,

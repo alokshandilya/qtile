@@ -39,7 +39,7 @@ keys = [
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
     Key([mod], "space", lazy.layout.next()),
     Key([mod], "r", lazy.spawncmd()),
-    Key([], "print", lazy.spawn('grim -g "$(slurp)"')),
+    Key([], "print", lazy.spawn("grim")),
     Key([mod], "h", lazy.layout.left()),
     Key([mod], "l", lazy.layout.right()),
     Key([mod], "j", lazy.layout.down()),
@@ -106,8 +106,8 @@ keys = [
 ]
 
 groups = []
-group_names = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-group_labels = ["󰎤", "󰎧", "󰎪", "󰎭", "󰎱", "󰎳", "󰎶", "󰎹", "󰎼"]
+group_names = ["1", "2", "3", "4", "5", "6", "7", "8"]
+group_labels = ["󰎤", "󰎧", "󰎪", "󰎭", "󰎱", "󰎳", "󰎶", "󰎹"]
 
 for i in range(len(group_names)):
     groups.append(
@@ -120,7 +120,7 @@ for i in range(len(group_names)):
 # scratchpads
 groups.append(
     ScratchPad(
-        "scratchpad",
+        "9",
         [
             DropDown(
                 "term",
@@ -165,12 +165,12 @@ for i in groups:
             Key(
                 [mod],
                 "grave",
-                lazy.group["scratchpad"].dropdown_toggle("term"),
+                lazy.group["9"].dropdown_toggle("term"),
             ),
             Key(
                 [mod],
                 "q",
-                lazy.group["scratchpad"].dropdown_toggle("chatgpt"),
+                lazy.group["9"].dropdown_toggle("chatgpt"),
             ),
         ]
     )
@@ -206,19 +206,25 @@ colors = [
     ["#1d2021", "#1d2021"],  # super dark background 14
 ]
 
+
 layouts = [
     layout.MonadTall(
-        border_focus=colors[8],
+        border_focus=colors[12],
         border_normal=colors[2],
         border_width=2,
         single_border_width=2,
-        margin=8,
-        single_margin=10,
+        margin=12,
+        single_margin=14,
         ratio=0.55,
         new_client_position="top",
         flip=True,
     ),
-    layout.Max(),
+    layout.Max(
+        margin=7,
+        border_focus=colors[8],
+        border_normal=colors[2],
+        border_width=2,
+    ),
 ]
 
 widget_defaults = dict(
@@ -422,7 +428,10 @@ floating_layout = layout.Floating(
         Match(wm_class="ssh-askpass"),  # ssh-askpass
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
-    ]
+    ],
+    border_focus=colors[8],
+    border_normal=colors[2],
+    border_width=2,
 )
 auto_fullscreen = True
 focus_on_window_activation = "smart"

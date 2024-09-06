@@ -2,7 +2,10 @@ import os
 import subprocess
 
 from libqtile import bar, hook, layout, qtile
-from libqtile.backend.wayland.inputs import InputConfig
+
+if qtile.core.name == "wayland":
+    from libqtile.backend.wayland.inputs import InputConfig
+
 from libqtile.config import (
     Click,
     Drag,
@@ -28,7 +31,10 @@ uptime_script = "/home/aloks/.local/bin/dwmblocks/upt"
 
 @hook.subscribe.startup_once
 def autostart():
-    home = os.path.expanduser("~/.config/qtile/autostart.sh")
+    if qtile.core.name == "wayland":
+        home = os.path.expanduser("~/.config/qtile/autostart.sh")
+    else:
+        home = os.path.expanduser("~/.config/qtile/autostart-x11.sh")
     subprocess.Popen([home])
 
 
@@ -442,19 +448,21 @@ reconfigure_screens = True
 auto_minimize = True
 
 # When using the Wayland backend, this can be used to configure input devices.
-wl_input_rules = {
-    "type:touchpad": InputConfig(
-        tap=True,
-        natural_scroll=True,
-        left_handed=False,
-    ),
-    # "*": InputConfig(left_handed=False),
-    "type:keyboard": InputConfig(
-        kb_options="caps:escape,compose:ralt",
-        kb_repeat_rate=40,
-        kb_repeat_delay=210,
-    ),
-}
+
+if qtile.core.name == "wayland":
+    wl_input_rules = {
+        "type:touchpad": InputConfig(
+            tap=True,
+            natural_scroll=True,
+            left_handed=False,
+        ),
+        # "*": InputConfig(left_handed=False),
+        "type:keyboard": InputConfig(
+            kb_options="caps:escape,compose:ralt",
+            kb_repeat_rate=40,
+            kb_repeat_delay=210,
+        ),
+    }
 
 # xcursor theme (string or None) and size (integer) for Wayland backend
 wl_xcursor_theme = "Qogir-manjaro-light"

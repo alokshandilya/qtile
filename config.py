@@ -31,10 +31,7 @@ uptime_script = "/home/aloks/.local/bin/dwmblocks/upt"
 
 @hook.subscribe.startup_once
 def autostart():
-    if qtile.core.name == "wayland":
-        home = os.path.expanduser("~/.config/qtile/autostart.sh")
-    else:
-        home = os.path.expanduser("~/.config/qtile/autostart-x11.sh")
+    home = os.path.expanduser("~/.config/qtile/autostart.sh")
     subprocess.Popen([home])
 
 
@@ -219,8 +216,8 @@ layouts = [
         border_normal=colors[2],
         border_width=2,
         single_border_width=2,
-        margin=12,
-        single_margin=14,
+        margin=7,
+        single_margin=7,
         ratio=0.55,
         new_client_position="top",
         flip=True,
@@ -265,7 +262,7 @@ screens = [
                     padding_x=4,
                     borderwidth=3,
                     active=colors[8],
-                    inactive=colors[1],
+                    inactive=colors[10],
                     rounded=False,
                     highlight_color=colors[2],
                     highlight_method="line",
@@ -281,17 +278,18 @@ screens = [
                     padding=4,
                     scale=0.75,
                 ),
-                widget.Prompt(
-                    font="FiraCode Nerd Font Mono Bold",
-                    foreground=colors[13],
-                    fontsize=13,
-                ),
                 widget.CurrentLayout(
                     fontsize=13,
                     foreground=colors[9],
                     padding=5,
                 ),
                 widget.TextBox("|", name="sep"),
+                widget.Spacer(length=5),
+                widget.Prompt(
+                    font="JetBrainsMono Nerd Font Bold",
+                    foreground=colors[4],
+                    fontsize=14,
+                ),
                 widget.Spacer(length=4),
                 widget.WindowName(
                     fontsize=14,
@@ -393,11 +391,18 @@ screens = [
                 # widget.Systray(),
                 widget.StatusNotifier(),
             ],
-            28,
-            # border_width=[3, 0, 3, 0],  # Draw top and bottom borders
-            # Borders are magenta
-            # border_color=["ff00ff", "000000", "ff00ff", "000000"]
+            24,
+            border_width=[0, 0, 2, 0],  # [top, right, bottom, left]
+            border_color=[
+                colors[14][0],
+                colors[14][0],
+                colors[14][0],
+                colors[14][0],
+            ],
         ),
+        left=bar.Gap(10),
+        right=bar.Gap(10),
+        bottom=bar.Gap(3),
     ),
 ]
 

@@ -22,10 +22,14 @@ from qtile_extras import widget
 from qtile_extras.widget.decorations import BorderDecoration
 
 mod = "mod4"
-terminal = "kitty"
+
+if qtile.core.name == "wayland":
+    terminal = "kitty"
+if qtile.core.name == "x11":
+    terminal = "st"
+
 gpu = "prime-run"
 
-gpu_term = "kitty"
 uptime_script = "/home/aloks/.local/bin/dwmblocks/upt"
 
 
@@ -66,7 +70,7 @@ keys = [
     Key(
         [mod, "shift"],
         "Return",
-        lazy.spawn(f"env {gpu} {gpu_term}"),
+        lazy.spawn(f"env {gpu} {terminal}"),
         desc="Launch terminal",
     ),
     Key([mod], "w", lazy.spawn("firefox"), desc="Launch Firefox"),
@@ -127,7 +131,7 @@ groups.append(
         [
             DropDown(
                 "term",
-                "kitty",
+                terminal,
                 x=0.1,
                 y=0.015,
                 opacity=1.0,
@@ -294,7 +298,7 @@ screens = [
                 widget.WindowName(
                     fontsize=14,
                     foreground=colors[8],
-                    max_chars=90,
+                    max_chars=110,
                 ),
                 widget.Net(
                     # format='🔻{down:.0f}{down_suffix} 🔺{up:.0f}{up_suffix}',

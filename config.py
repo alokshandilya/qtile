@@ -26,7 +26,7 @@ mod = "mod4"
 if qtile.core.name == "wayland":
     terminal = "kitty"
 if qtile.core.name == "x11":
-    terminal = "st"
+    terminal = "kitty"
 
 gpu = "prime-run"
 

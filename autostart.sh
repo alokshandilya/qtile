@@ -2,8 +2,8 @@
 
 # Check if running under X11
 if [ "$XDG_SESSION_TYPE" = "x11" ]; then
-  setxkbmap -option caps:escape
-  xset r rate 210 40
+  setxkbmap -option caps:escape &
+  xset r rate 210 40 &
   copyq &
   dunst &
   # /usr/bin/emacs --daemon &
@@ -15,6 +15,7 @@ if [ "$XDG_SESSION_TYPE" = "x11" ]; then
   /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
   dbus-update-activation-environment --all &
   gnome-keyring-daemon --start --components=secrets &
+  conky -c ~/.config/conky/gruvbox-material.conkyrc &
 fi
 
 if [ "$XDG_SESSION_TYPE" = "wayland" ]; then

@@ -73,7 +73,7 @@ keys = [
         lazy.spawn(f"env {gpu} {terminal}"),
         desc="Launch terminal",
     ),
-    Key([mod], "w", lazy.spawn("firefox"), desc="Launch Firefox"),
+    Key([mod], "w", lazy.spawn("zen-browser"), desc="Launch Zen Browser"),
     Key([mod], "d", lazy.spawn("rofi -show drun")),
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod, "shift"], "q", lazy.window.kill(), desc="Kill focused window"),

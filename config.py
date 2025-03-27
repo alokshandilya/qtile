@@ -46,8 +46,6 @@ keys = [
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
     Key([mod], "space", lazy.layout.next()),
     Key([mod], "r", lazy.spawncmd()),
-
-    Key([], "print", lazy.spawn("sh -c 'grim -g \"$(slurp)\" - | wl-copy'")),
     Key([mod], "h", lazy.layout.left()),
     Key([mod], "l", lazy.layout.right()),
     Key([mod], "j", lazy.layout.down()),
@@ -112,6 +110,16 @@ keys = [
         ],
     ),
 ]
+
+
+# Add screenshot keybindings based on the backend (Wayland or X11)
+if qtile.core.name == "wayland":
+    keys.append(
+        Key([], "print", lazy.spawn("sh -c 'grim -g \"$(slurp)\" - | wl-copy'"))
+    )
+else:
+    keys.append(Key([], "print", lazy.spawn("flameshot gui")))
+
 
 groups = []
 group_names = ["1", "2", "3", "4", "5", "6", "7", "8"]

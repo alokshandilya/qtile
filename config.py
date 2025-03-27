@@ -46,7 +46,8 @@ keys = [
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
     Key([mod], "space", lazy.layout.next()),
     Key([mod], "r", lazy.spawncmd()),
-    Key([], "print", lazy.spawn("grim")),
+
+    Key([], "print", lazy.spawn("sh -c 'grim -g \"$(slurp)\" - | wl-copy'")),
     Key([mod], "h", lazy.layout.left()),
     Key([mod], "l", lazy.layout.right()),
     Key([mod], "j", lazy.layout.down()),

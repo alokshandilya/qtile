@@ -26,7 +26,7 @@ mod = "mod4"
 if qtile.core.name == "wayland":
     terminal = "kitty"
 if qtile.core.name == "x11":
-    terminal = "kitty"
+    terminal = "st"
 
 gpu = "prime-run"
 
@@ -72,7 +72,9 @@ keys = [
         lazy.spawn(f"env {gpu} {terminal}"),
         desc="Launch terminal",
     ),
+    # Key([mod], "w", lazy.spawn(f"env {gpu} zen-browser"), desc="Launch Zen Browser"),
     Key([mod], "w", lazy.spawn("zen-browser"), desc="Launch Zen Browser"),
+    Key([mod, "shift"], "t", lazy.spawn(f"{terminal} -e bpytop"), desc="Launch Bpytop"),
     Key([mod], "d", lazy.spawn("rofi -show drun")),
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod, "shift"], "q", lazy.window.kill(), desc="Kill focused window"),
@@ -96,16 +98,15 @@ keys = [
         [mod],
         "e",
         [
-            Key([], "f", lazy.spawn("thunar")),
+            Key([], "f", lazy.spawn("pcmanfm")),
         ],
     ),
     KeyChord(
         [mod],
         "v",
         [
-            # Key([], "c", lazy.spawn(f"env {gpu} code")),
-            Key([], "c", lazy.spawn(f"env {gpu} zeditor")),
-            # Key([], "c", lazy.spawn("zeditor")),
+            Key([], "c", lazy.spawn(f"env {gpu} code")),
+            # Key([], "c", lazy.spawn(f"env {gpu} zeditor")),
             Key([], "v", lazy.spawn("pavucontrol")),
         ],
     ),
@@ -421,19 +422,19 @@ screens = [
 
 # Drag floating layouts.
 mouse = [
-    Drag(
-        [mod],
-        "Button1",
-        lazy.window.set_position_floating(),
-        start=lazy.window.get_position(),
-    ),
-    Drag(
-        [mod],
-        "Button3",
-        lazy.window.set_size_floating(),
-        start=lazy.window.get_size(),
-    ),
-    Click([mod], "Button2", lazy.window.bring_to_front()),
+    # Drag(
+    #     [mod],
+    #     "Button1",
+    #     lazy.window.set_position_floating(),
+    #     start=lazy.window.get_position(),
+    # ),
+    # Drag(
+    #     [mod],
+    #     "Button3",
+    #     lazy.window.set_size_floating(),
+    #     start=lazy.window.get_size(),
+    # ),
+    # Click([mod], "Button2", lazy.window.bring_to_front()),
 ]
 
 dgroups_key_binder = None

@@ -7,8 +7,6 @@ if qtile.core.name == "wayland":
     from libqtile.backend.wayland.inputs import InputConfig
 
 from libqtile.config import (
-    Click,
-    Drag,
     DropDown,
     Group,
     Key,
@@ -26,7 +24,7 @@ mod = "mod4"
 if qtile.core.name == "wayland":
     terminal = "kitty"
 if qtile.core.name == "x11":
-    terminal = "st"
+    terminal = "kitty"
 
 gpu = "prime-run"
 
@@ -72,14 +70,15 @@ keys = [
         lazy.spawn(f"env {gpu} {terminal}"),
         desc="Launch terminal",
     ),
-    # Key([mod], "w", lazy.spawn(f"env {gpu} zen-browser"), desc="Launch Zen Browser"),
-    Key([mod], "w", lazy.spawn("zen-browser"), desc="Launch Zen Browser"),
+    # Key([mod], "w", lazy.spawn(f"env {gpu} zen-browser --ozone-platform=wayland"), desc="Launch Zen Browser"),
+    Key([mod], "w", lazy.spawn(f"env {gpu} zen-browser"), desc="Launch Zen Browser"),
+    # Key([mod], "w", lazy.spawn("brave"), desc="Launch Brave Browser"),
     Key([mod, "shift"], "t", lazy.spawn(f"{terminal} -e bpytop"), desc="Launch Bpytop"),
     Key([mod], "d", lazy.spawn("rofi -show drun")),
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod, "shift"], "q", lazy.window.kill(), desc="Kill focused window"),
-    Key([mod, "control"], "l", lazy.spawn("brightnessctl s 1%+")),
-    Key([mod, "control"], "h", lazy.spawn("brightnessctl s 1%-")),
+    Key([mod, "control"], "l", lazy.spawn("brightnessctl s 3%+")),
+    Key([mod, "control"], "h", lazy.spawn("brightnessctl s 3%-")),
     Key([mod, "control"], "k", lazy.spawn("amixer -q set Master 2%+")),
     Key([mod, "control"], "j", lazy.spawn("amixer -q set Master 2%-")),
     Key([mod], "f", lazy.window.toggle_fullscreen()),
@@ -98,7 +97,7 @@ keys = [
         [mod],
         "e",
         [
-            Key([], "f", lazy.spawn("pcmanfm")),
+            Key([], "f", lazy.spawn("thunar")),
         ],
     ),
     KeyChord(

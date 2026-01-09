@@ -42,6 +42,8 @@ keys = [
     Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
     Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
+    Key([mod], "period", lazy.next_screen(), desc="Move focus to next screen"),
+    Key([mod], "comma", lazy.prev_screen(), desc="Move focus to prev screen"),
     Key([mod], "space", lazy.layout.next()),
     Key([mod], "r", lazy.spawncmd()),
     Key([mod], "h", lazy.layout.left()),

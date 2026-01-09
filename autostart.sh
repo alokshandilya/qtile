@@ -32,5 +32,5 @@ if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
   dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wlroots
   systemctl --user stop pipewire pipewire-media-session xdg-desktop-portal xdg-desktop-portal-wlr
   gnome-keyring-daemon --start --components=secrets &
-  conky -c ~/.config/conky/gruvbox-material.conkyrc &
+  # conky -c ~/.config/conky/gruvbox-material.conkyrc &
 fi

@@ -128,6 +128,7 @@ for i in range(len(group_names)):
         Group(
             name=group_names[i],
             label=group_labels[i],
+            screen_affinity=1 if i < 4 else 0,
         )
     )
 
@@ -161,19 +162,54 @@ groups.append(
 )
 
 
+def go_to_group(name):
+    def _inner(qtile):
+        if len(qtile.screens) == 1:
+            qtile.groups_map[name].toscreen()
+            return
+
+        if name in "1234":
+            qtile.to_screen(1)
+            qtile.groups_map[name].toscreen()
+        else:
+            qtile.to_screen(0)
+            qtile.groups_map[name].toscreen()
+
+    return _inner
+
+
+def go_to_group_and_move_window(name):
+    def _inner(qtile):
+        if qtile.current_window:
+            if len(qtile.screens) == 1:
+                qtile.current_window.togroup(name, switch_group=True)
+                return
+
+            if name in "1234":
+                qtile.current_window.togroup(name, switch_group=False)
+                qtile.to_screen(1)
+                qtile.groups_map[name].toscreen()
+            else:
+                qtile.current_window.togroup(name, switch_group=False)
+                qtile.to_screen(0)
+                qtile.groups_map[name].toscreen()
+
+    return _inner
+
+
 for i in groups:
     keys.extend(
         [
             Key(
                 [mod],
                 i.name,
-                lazy.group[i.name].toscreen(),
+                lazy.function(go_to_group(i.name)),
                 desc="Switch to group {}".format(i.name),
             ),
             Key(
                 [mod, "shift"],
                 i.name,
-                lazy.window.togroup(i.name),
+                lazy.function(go_to_group_and_move_window(i.name)),
                 desc="move focused window to group {}".format(i.name),
             ),
             Key(
@@ -250,158 +286,205 @@ widget_defaults = dict(
 
 extension_defaults = widget_defaults.copy()
 
+
+def get_monitors():
+    try:
+        # Check /sys/class/drm for connected monitors (works on both X11 and Wayland)
+        count = 0
+        if os.path.exists("/sys/class/drm/"):
+            for path in os.listdir("/sys/class/drm/"):
+                # Look for cardX-connector formats (e.g., card0-HDMI-A-1)
+                if path.startswith("card") and "-" in path:
+                    status_path = os.path.join("/sys/class/drm/", path, "status")
+                    if os.path.exists(status_path):
+                        with open(status_path, "r") as f:
+                            if f.read().strip() == "connected":
+                                count += 1
+        return count if count > 0 else 1
+    except Exception:
+        return 1
+
+
+def init_widgets_list(is_primary=True, visible_groups=None):
+    widgets = [
+        widget.Image(
+            filename="~/.config/doom/me-gruv-circle.png",
+            scale="False",
+            mouse_callbacks={
+                "Button1": lambda: qtile.cmd_spawn(terminal),
+            },
+            margin_x=11,
+            margin_y=1,
+        ),
+        widget.GroupBox(
+            visible_groups=visible_groups,
+            hide_unused=True,
+            font="JetBrainsMono Nerd Font",
+            fontsize=18,
+            margin_y=4,
+            margin_x=0,
+            padding_y=0,
+            padding_x=4,
+            borderwidth=3,
+            active=colors[8],
+            inactive=colors[10],
+            rounded=False,
+            highlight_color=colors[2],
+            highlight_method="line",
+            this_current_screen_border=colors[7],
+            this_screen_border=colors[4],
+            other_current_screen_border=colors[7],
+            other_screen_border=colors[4],
+            disable_drag=True,
+        ),
+        widget.Spacer(length=8),
+        widget.CurrentLayoutIcon(
+            foreground=colors[9],
+            padding=4,
+            scale=0.75,
+        ),
+        widget.CurrentLayout(
+            fontsize=13,
+            foreground=colors[9],
+            padding=5,
+        ),
+        widget.TextBox("|", name="sep"),
+        widget.Spacer(length=5),
+        widget.Prompt(
+            font="JetBrainsMono Nerd Font Bold",
+            foreground=colors[4],
+            fontsize=14,
+        ),
+        widget.Spacer(length=4),
+        widget.WindowName(
+            fontsize=14,
+            foreground=colors[8],
+            max_chars=110,
+        ),
+        widget.Net(
+            # format='🔻{down:.0f}{down_suffix} 🔺{up:.0f}{up_suffix}',
+            format=" {down:.0f}{down_suffix}  {up:.0f}{up_suffix}",
+            interface="wlan0",
+            padding=0,
+            margin=0,
+            foreground=colors[13],
+            decorations=[
+                BorderDecoration(
+                    border_width=[0, 0, 2, 0],
+                    colour=colors[13],
+                )
+            ],
+        ),
+        widget.Spacer(length=8),
+        widget.GenPollText(
+            update_interval=60,  # Set the update interval
+            func=lambda: subprocess.check_output([uptime_script])
+            .decode("utf-8")
+            .strip(),
+            fmt="󱑀 {}",
+            foreground=colors[4],
+            decorations=[
+                BorderDecoration(
+                    border_width=[0, 0, 2, 0],
+                    colour=colors[4],
+                )
+            ],
+        ),
+        widget.Spacer(length=8),
+        widget.Memory(
+            # format="🖥 {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
+            format="  {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
+            foreground=colors[7],
+            decorations=[
+                BorderDecoration(
+                    border_width=[0, 0, 2, 0],
+                    colour=colors[7],
+                )
+            ],
+        ),
+        widget.Spacer(length=8),
+        widget.CPU(
+            # format="🗳️ {load_percent}%",
+            format="  {load_percent}%",
+            foreground=colors[11],
+            decorations=[
+                BorderDecoration(
+                    border_width=[0, 0, 2, 0],
+                    colour=colors[11],
+                )
+            ],
+        ),
+        widget.Spacer(length=8),
+        widget.Battery(
+            # format="🔋 {percent:2.0%}", notify_below=97,
+            format="  {percent:2.0%}",
+            notify_below=10,
+            foreground=colors[12],
+            decorations=[
+                BorderDecoration(
+                    border_width=[0, 0, 2, 0],
+                    colour=colors[12],
+                )
+            ],
+        ),
+        widget.Spacer(length=8),
+        widget.Volume(
+            # fmt="🔊 {}",
+            fmt="  {}",
+            foreground=colors[5],
+            decorations=[
+                BorderDecoration(
+                    border_width=[0, 0, 2, 0],
+                    colour=colors[5],
+                )
+            ],
+        ),
+        widget.Spacer(length=8),
+        widget.Clock(
+            # format="📅 %a, %B %d %l:%M%p",
+            format="  %a, %B %d %l:%M%p",
+            foreground=colors[4],
+            decorations=[
+                BorderDecoration(
+                    border_width=[0, 0, 2, 0],
+                    colour=colors[4],
+                )
+            ],
+        ),
+        widget.Spacer(length=8),
+        # consider using StatusNotifier instead for wayland
+        # widget.Systray(),
+    ]
+    if is_primary:
+        widgets.append(widget.StatusNotifier())
+    return widgets
+
+
+monitors = get_monitors()
+
 screens = [
     Screen(
         top=bar.Bar(
-            [
-                widget.Image(
-                    filename="~/.config/doom/me-gruv-circle.png",
-                    scale="False",
-                    mouse_callbacks={
-                        "Button1": lambda: qtile.cmd_spawn(terminal),
-                    },
-                    margin_x=11,
-                    margin_y=1,
-                ),
-                widget.GroupBox(
-                    hide_unused=True,
-                    font="JetBrainsMono Nerd Font",
-                    fontsize=18,
-                    margin_y=4,
-                    margin_x=0,
-                    padding_y=0,
-                    padding_x=4,
-                    borderwidth=3,
-                    active=colors[8],
-                    inactive=colors[10],
-                    rounded=False,
-                    highlight_color=colors[2],
-                    highlight_method="line",
-                    this_current_screen_border=colors[7],
-                    this_screen_border=colors[4],
-                    other_current_screen_border=colors[7],
-                    other_screen_border=colors[4],
-                    disable_drag=True,
-                ),
-                widget.Spacer(length=8),
-                widget.CurrentLayoutIcon(
-                    foreground=colors[9],
-                    padding=4,
-                    scale=0.75,
-                ),
-                widget.CurrentLayout(
-                    fontsize=13,
-                    foreground=colors[9],
-                    padding=5,
-                ),
-                widget.TextBox("|", name="sep"),
-                widget.Spacer(length=5),
-                widget.Prompt(
-                    font="JetBrainsMono Nerd Font Bold",
-                    foreground=colors[4],
-                    fontsize=14,
-                ),
-                widget.Spacer(length=4),
-                widget.WindowName(
-                    fontsize=14,
-                    foreground=colors[8],
-                    max_chars=110,
-                ),
-                widget.Net(
-                    # format='🔻{down:.0f}{down_suffix} 🔺{up:.0f}{up_suffix}',
-                    format=" {down:.0f}{down_suffix}  {up:.0f}{up_suffix}",
-                    interface="wlan0",
-                    padding=0,
-                    margin=0,
-                    foreground=colors[13],
-                    decorations=[
-                        BorderDecoration(
-                            border_width=[0, 0, 2, 0],
-                            colour=colors[13],
-                        )
-                    ],
-                ),
-                widget.Spacer(length=8),
-                widget.GenPollText(
-                    update_interval=60,  # Set the update interval
-                    func=lambda: subprocess.check_output([uptime_script])
-                    .decode("utf-8")
-                    .strip(),
-                    fmt="󱑀 {}",
-                    foreground=colors[4],
-                    decorations=[
-                        BorderDecoration(
-                            border_width=[0, 0, 2, 0],
-                            colour=colors[4],
-                        )
-                    ],
-                ),
-                widget.Spacer(length=8),
-                widget.Memory(
-                    # format="🖥 {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
-                    format="  {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
-                    foreground=colors[7],
-                    decorations=[
-                        BorderDecoration(
-                            border_width=[0, 0, 2, 0],
-                            colour=colors[7],
-                        )
-                    ],
-                ),
-                widget.Spacer(length=8),
-                widget.CPU(
-                    # format="🗳️ {load_percent}%",
-                    format="  {load_percent}%",
-                    foreground=colors[11],
-                    decorations=[
-                        BorderDecoration(
-                            border_width=[0, 0, 2, 0],
-                            colour=colors[11],
-                        )
-                    ],
-                ),
-                widget.Spacer(length=8),
-                widget.Battery(
-                    # format="🔋 {percent:2.0%}", notify_below=97,
-                    format="  {percent:2.0%}",
-                    notify_below=10,
-                    foreground=colors[12],
-                    decorations=[
-                        BorderDecoration(
-                            border_width=[0, 0, 2, 0],
-                            colour=colors[12],
-                        )
-                    ],
-                ),
-                widget.Spacer(length=8),
-                widget.Volume(
-                    # fmt="🔊 {}",
-                    fmt="  {}",
-                    foreground=colors[5],
-                    decorations=[
-                        BorderDecoration(
-                            border_width=[0, 0, 2, 0],
-                            colour=colors[5],
-                        )
-                    ],
-                ),
-                widget.Spacer(length=8),
-                widget.Clock(
-                    # format="📅 %a, %B %d %l:%M%p",
-                    format="  %a, %B %d %l:%M%p",
-                    foreground=colors[4],
-                    decorations=[
-                        BorderDecoration(
-                            border_width=[0, 0, 2, 0],
-                            colour=colors[4],
-                        )
-                    ],
-                ),
-                widget.Spacer(length=8),
-                # consider using StatusNotifier instead for wayland
-                # widget.Systray(),
-                widget.StatusNotifier(),
+            init_widgets_list(
+                is_primary=True,
+                visible_groups=group_names[4:] if monitors > 1 else None,
+            ),
+            24,
+            border_width=[0, 0, 2, 0],  # [top, right, bottom, left]
+            border_color=[
+                colors[14][0],
+                colors[14][0],
+                colors[14][0],
+                colors[14][0],
             ],
+        ),
+        left=bar.Gap(10),
+        right=bar.Gap(10),
+        bottom=bar.Gap(3),
+    ),
+    Screen(
+        top=bar.Bar(
+            init_widgets_list(is_primary=False, visible_groups=group_names[:4]),
             24,
             border_width=[0, 0, 2, 0],  # [top, right, bottom, left]
             border_color=[

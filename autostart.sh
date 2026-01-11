@@ -19,18 +19,22 @@ if [ "$XDG_SESSION_TYPE" = "x11" ]; then
 fi
 
 if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+  # 1. Essential Environment Setup
+  # We export the variables and tell DBus/Systemd about them immediately
+  export XDG_CURRENT_DESKTOP=qtile
+  dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+  
+  systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+  systemctl --user restart xdg-desktop-portal-wlr
+  systemctl --user restart xdg-desktop-portal
+  gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+
+  # 3. Background Apps
   copyq &
   mako &
   kanshi &
-  # /usr/bin/emacs --daemon &
   nm-applet --indicator &
-  # /usr/bin/kdeconnectd &
-  # kdeconnect-indicator &
   swww-daemon &
   /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-  dbus-update-activation-environment --all &
-  dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=wlroots
-  systemctl --user stop pipewire pipewire-media-session xdg-desktop-portal xdg-desktop-portal-wlr
   gnome-keyring-daemon --start --components=secrets &
-  # conky -c ~/.config/conky/gruvbox-material.conkyrc &
 fi

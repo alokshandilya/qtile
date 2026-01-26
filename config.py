@@ -1,3 +1,4 @@
+import asyncio
 import os
 import subprocess
 
@@ -35,6 +36,46 @@ uptime_script = "/home/aloks/.local/bin/dwmblocks/upt"
 def autostart():
     home = os.path.expanduser("~/.config/qtile/autostart.sh")
     subprocess.Popen([home])
+
+
+def get_monitors():
+    # If running on Wayland, trust the compositor's output list as the source of truth.
+    # sysfs might lag behind or be inconsistent during hotplug events.
+    try:
+        if qtile.core.name == "wayland":
+            return len(qtile.core.outputs)
+    except Exception:
+        pass
+
+    try:
+        # Check /sys/class/drm for connected monitors (works on both X11 and Wayland)
+        count = 0
+        if os.path.exists("/sys/class/drm/"):
+            for path in os.listdir("/sys/class/drm/"):
+                # Look for cardX-connector formats (e.g., card0-HDMI-A-1)
+                if path.startswith("card") and "-" in path:
+                    status_path = os.path.join("/sys/class/drm/", path, "status")
+                    if os.path.exists(status_path):
+                        with open(status_path, "r") as f:
+                            if f.read().strip() == "connected":
+                                count += 1
+        return count if count > 0 else 1
+    except Exception:
+        return 1
+
+
+monitors = get_monitors()
+
+
+@hook.subscribe.screen_change
+def screen_change(event):
+    async def reload_config():
+        await asyncio.sleep(2.0)
+        if qtile.core.name == "x11":
+            subprocess.run(["xrandr", "--auto"])
+        qtile.cmd_reload_config()
+
+    asyncio.create_task(reload_config())
 
 
 keys = [
@@ -128,7 +169,7 @@ for i in range(len(group_names)):
         Group(
             name=group_names[i],
             label=group_labels[i],
-            screen_affinity=1 if i < 4 else 0,
+            screen_affinity=1 if (i < 4 and monitors > 1) else 0,
         )
     )
 
@@ -287,24 +328,6 @@ widget_defaults = dict(
 extension_defaults = widget_defaults.copy()
 
 
-def get_monitors():
-    try:
-        # Check /sys/class/drm for connected monitors (works on both X11 and Wayland)
-        count = 0
-        if os.path.exists("/sys/class/drm/"):
-            for path in os.listdir("/sys/class/drm/"):
-                # Look for cardX-connector formats (e.g., card0-HDMI-A-1)
-                if path.startswith("card") and "-" in path:
-                    status_path = os.path.join("/sys/class/drm/", path, "status")
-                    if os.path.exists(status_path):
-                        with open(status_path, "r") as f:
-                            if f.read().strip() == "connected":
-                                count += 1
-        return count if count > 0 else 1
-    except Exception:
-        return 1
-
-
 def init_widgets_list(is_primary=True, visible_groups=None):
     widgets = [
         widget.Image(
@@ -460,8 +483,6 @@ def init_widgets_list(is_primary=True, visible_groups=None):
     return widgets
 
 
-monitors = get_monitors()
-
 screens = [
     Screen(
         top=bar.Bar(
@@ -482,23 +503,27 @@ screens = [
         right=bar.Gap(10),
         bottom=bar.Gap(3),
     ),
-    Screen(
-        top=bar.Bar(
-            init_widgets_list(is_primary=False, visible_groups=group_names[:4]),
-            24,
-            border_width=[0, 0, 2, 0],  # [top, right, bottom, left]
-            border_color=[
-                colors[14][0],
-                colors[14][0],
-                colors[14][0],
-                colors[14][0],
-            ],
-        ),
-        left=bar.Gap(10),
-        right=bar.Gap(10),
-        bottom=bar.Gap(3),
-    ),
 ]
+
+if monitors > 1:
+    screens.append(
+        Screen(
+            top=bar.Bar(
+                init_widgets_list(is_primary=False, visible_groups=group_names[:4]),
+                24,
+                border_width=[0, 0, 2, 0],  # [top, right, bottom, left]
+                border_color=[
+                    colors[14][0],
+                    colors[14][0],
+                    colors[14][0],
+                    colors[14][0],
+                ],
+            ),
+            left=bar.Gap(10),
+            right=bar.Gap(10),
+            bottom=bar.Gap(3),
+        )
+    )
 
 # Drag floating layouts.
 mouse = [

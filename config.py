@@ -478,8 +478,7 @@ def init_widgets_list(is_primary=True, visible_groups=None):
         # consider using StatusNotifier instead for wayland
         # widget.Systray(),
     ]
-    if is_primary:
-        widgets.append(widget.StatusNotifier())
+    widgets.append(widget.StatusNotifier())
     return widgets
 
 

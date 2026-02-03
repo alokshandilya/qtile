@@ -4,6 +4,7 @@ import os
 CACHE_DIR = os.path.expanduser("~/.cache/cliphist/thumbs")
 ROFI_THEME = """
     * { font: "JetBrainsMono Nerd Font 10"; }
+    listview { lines: 10; }
     element-icon { size: 6ch; }
     element-text { vertical-align: 0.5; }
 """

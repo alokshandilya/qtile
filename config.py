@@ -114,6 +114,7 @@ keys = [
     # Key([mod], "w", lazy.spawn("brave"), desc="Launch Brave Browser"),
     Key([mod, "shift"], "t", lazy.spawn(f"{terminal} -e bpytop"), desc="Launch Bpytop"),
     Key([mod], "d", lazy.spawn("rofi -show drun")),
+    Key([mod], "c", lazy.spawn("python3 " + os.path.expanduser("~/.config/qtile/scripts/clip.py")), desc="Clipboard Manager"),
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod, "shift"], "q", lazy.window.kill(), desc="Kill focused window"),
     Key([mod, "control"], "l", lazy.spawn("brightnessctl s 3%+")),

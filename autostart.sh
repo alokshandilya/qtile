@@ -30,7 +30,8 @@ if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
   gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
 
   # 3. Background Apps
-  copyq &
+  wl-paste --type text --watch cliphist store &
+  wl-paste --type image --watch cliphist store &
   mako &
   kanshi &
   nm-applet --indicator &

@@ -121,8 +121,11 @@ keys = [
     Key([mod, "control"], "h", lazy.spawn("brightnessctl s 3%-")),
     Key([mod, "control"], "k", lazy.spawn("amixer -q set Master 2%+")),
     Key([mod, "control"], "j", lazy.spawn("amixer -q set Master 2%-")),
+    Key([mod], "Right", lazy.screen.next_group(), desc="Move to next workspace"),
+    Key([mod], "Left", lazy.screen.prev_group(), desc="Move to previous workspace"),
     Key([mod], "f", lazy.window.toggle_fullscreen()),
     Key([mod], "t", lazy.window.toggle_floating()),
+    Key([mod, "shift"], "s", lazy.spawn("sh -c 'export XDG_CURRENT_DESKTOP=qtile XDG_SESSION_TYPE=wayland && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user restart xdg-desktop-portal-wlr xdg-desktop-portal'"), desc="Reload screen sharing env"),
     KeyChord(
         [mod],
         "x",

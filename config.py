@@ -1,7 +1,11 @@
+import gc
 from libqtile import qtile, bar
 from libqtile.config import Screen, Key
 from libqtile.lazy import lazy
 from pathlib import Path
+
+# Tune Garbage Collection for lower latency
+gc.set_threshold(1500, 15, 15)
 
 # Import modular components
 from modules.settings import COLORS, IS_WAYLAND, InputConfig
@@ -41,10 +45,10 @@ group_names = [g.name for g in groups if not isinstance(g, ScratchPad)]
 
 
 # --- Screens ---
-def create_screen(visible_groups=None):
+def create_screen(visible_groups=None, is_primary=True):
     return Screen(
         top=bar.Bar(
-            init_widgets_list(visible_groups=visible_groups),
+            init_widgets_list(visible_groups=visible_groups, is_primary=is_primary),
             24,
             border_width=[0, 0, 2, 0],
             border_color=COLORS["bg_dark"],
@@ -55,10 +59,14 @@ def create_screen(visible_groups=None):
     )
 
 
-screens = [create_screen(visible_groups=group_names[4:] if num_monitors > 1 else None)]
+screens = [
+    create_screen(
+        visible_groups=group_names[4:] if num_monitors > 1 else None, is_primary=True
+    )
+]
 
 if num_monitors > 1:
-    screens.append(create_screen(visible_groups=group_names[:4]))
+    screens.append(create_screen(visible_groups=group_names[:4], is_primary=False))
 
 # --- General Settings ---
 mouse = []

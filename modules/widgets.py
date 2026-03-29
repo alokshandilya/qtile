@@ -39,8 +39,8 @@ widget_defaults = dict(
 )
 
 
-def init_widgets_list(visible_groups=None):
-    return [
+def init_widgets_list(visible_groups=None, is_primary=True):
+    widgets = [
         widget.Image(
             filename="~/.config/doom/me-gruv-circle.png",
             scale="False",
@@ -73,57 +73,80 @@ def init_widgets_list(visible_groups=None):
         widget.CurrentLayoutIcon(foreground=COLORS["white"], padding=4, scale=0.75),
         widget.CurrentLayout(fontsize=13, foreground=COLORS["white"], padding=5),
         get_sep(),
-        get_spacer(5),
-        widget.Prompt(
-            font="JetBrainsMono Nerd Font Bold", foreground=COLORS["green"], fontsize=14
-        ),
-        get_spacer(4),
-        widget.WindowName(fontsize=14, foreground=COLORS["cyan"], max_chars=110),
-        widget.Net(
-            format=" {down:.0f}{down_suffix}  {up:.0f}{up_suffix}",
-            interface="wlan0",
-            foreground=COLORS["super_blue"],
-            decorations=DECORATIONS["super_blue"],
-        ),
-        get_spacer(),
-        widget.GenPollText(
-            update_interval=60,
-            func=get_uptime,
-            fmt="󱑀 {}",
-            foreground=COLORS["green"],
-            decorations=DECORATIONS["green"],
-        ),
-        get_spacer(),
-        widget.Memory(
-            format="  {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
-            foreground=COLORS["magenta"],
-            decorations=DECORATIONS["magenta"],
-        ),
-        get_spacer(),
-        widget.CPU(
-            format="  {load_percent}%",
-            foreground=COLORS["orange"],
-            decorations=DECORATIONS["orange"],
-        ),
-        get_spacer(),
-        widget.Battery(
-            format="  {percent:2.0%}",
-            notify_below=10,
-            foreground=COLORS["super_cyan"],
-            decorations=DECORATIONS["super_cyan"],
-        ),
-        get_spacer(),
-        widget.Volume(
-            fmt="  {}",
-            foreground=COLORS["yellow"],
-            decorations=DECORATIONS["yellow"],
-        ),
-        get_spacer(),
-        widget.Clock(
-            format="  %a, %B %d %l:%M%p",
-            foreground=COLORS["green"],
-            decorations=DECORATIONS["green"],
-        ),
-        get_spacer(),
-        widget.StatusNotifier() if IS_WAYLAND else widget.Systray(),
     ]
+
+    if is_primary:
+        widgets.extend(
+            [
+                get_spacer(5),
+                widget.Prompt(
+                    font="JetBrainsMono Nerd Font Bold",
+                    foreground=COLORS["green"],
+                    fontsize=14,
+                ),
+                get_spacer(4),
+                widget.WindowName(
+                    fontsize=14, foreground=COLORS["cyan"], max_chars=110
+                ),
+                widget.Net(
+                    format=" {down:.0f}{down_suffix}  {up:.0f}{up_suffix}",
+                    interface="wlan0",
+                    foreground=COLORS["super_blue"],
+                    decorations=DECORATIONS["super_blue"],
+                    update_interval=2,
+                ),
+                get_spacer(),
+                widget.GenPollText(
+                    update_interval=60,
+                    func=get_uptime,
+                    fmt="󱑀 {}",
+                    foreground=COLORS["green"],
+                    decorations=DECORATIONS["green"],
+                ),
+                get_spacer(),
+                widget.Memory(
+                    format="  {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
+                    foreground=COLORS["magenta"],
+                    decorations=DECORATIONS["magenta"],
+                    update_interval=3,
+                ),
+                get_spacer(),
+                widget.CPU(
+                    format="  {load_percent}%",
+                    foreground=COLORS["orange"],
+                    decorations=DECORATIONS["orange"],
+                    update_interval=2,
+                ),
+                get_spacer(),
+                widget.Battery(
+                    format="  {percent:2.0%}",
+                    notify_below=10,
+                    foreground=COLORS["super_cyan"],
+                    decorations=DECORATIONS["super_cyan"],
+                    update_interval=30,
+                ),
+                get_spacer(),
+                widget.Volume(
+                    fmt="  {}",
+                    foreground=COLORS["yellow"],
+                    decorations=DECORATIONS["yellow"],
+                ),
+            ]
+        )
+    else:
+        widgets.append(widget.Spacer())
+
+    widgets.extend(
+        [
+            get_spacer(),
+            widget.Clock(
+                format="  %a, %B %d %l:%M%p",
+                foreground=COLORS["green"],
+                decorations=DECORATIONS["green"],
+                update_interval=10,
+            ),
+            get_spacer(),
+            widget.StatusNotifier() if IS_WAYLAND else widget.Systray(),
+        ]
+    )
+    return widgets

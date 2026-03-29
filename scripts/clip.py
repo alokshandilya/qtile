@@ -1,6 +1,5 @@
-import subprocess
 import os
-import sys
+import subprocess
 from pathlib import Path
 
 # --- Constants ---
@@ -99,9 +98,6 @@ def main():
         except Exception:
             pass
 
-
-if __name__ == "__main__":
-    main()
 
 if __name__ == "__main__":
     main()

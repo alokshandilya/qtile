@@ -23,13 +23,20 @@ def focus_first_workspace():
         )
 
 
+_reload_task = None
+
+
 @hook.subscribe.screen_change
 def screen_change(event):
+    global _reload_task
+    if _reload_task:
+        _reload_task.cancel()
+
     async def reload_config():
-        await asyncio.sleep(2.0)
+        await asyncio.sleep(1.0)
         if not IS_WAYLAND:
             proc = await asyncio.create_subprocess_exec("xrandr", "--auto")
             await proc.wait()
         qtile.cmd_reload_config()
 
-    asyncio.create_task(reload_config())
+    _reload_task = asyncio.create_task(reload_config())

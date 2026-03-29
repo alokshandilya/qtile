@@ -35,7 +35,7 @@ if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
   mako &
   kanshi &
   nm-applet --indicator &
-  swww-daemon &
+  awww-daemon &
   /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
   gnome-keyring-daemon --start --components=secrets &
 fi

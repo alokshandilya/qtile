@@ -6,6 +6,12 @@ from libqtile import bar, hook, layout, qtile
 
 if qtile.core.name == "wayland":
     from libqtile.backend.wayland.inputs import InputConfig
+else:
+
+    class InputConfig:
+        def __init__(self, **kwargs):
+            pass
+
 
 from libqtile.config import (
     DropDown,
@@ -21,6 +27,7 @@ from qtile_extras import widget
 from qtile_extras.widget.decorations import BorderDecoration
 
 mod = "mod4"
+terminal = "kitty"
 
 if qtile.core.name == "wayland":
     terminal = "kitty"
@@ -36,6 +43,16 @@ uptime_script = "/home/aloks/.local/bin/dwmblocks/upt"
 def autostart():
     home = os.path.expanduser("~/.config/qtile/autostart.sh")
     subprocess.Popen([home])
+
+
+@hook.subscribe.startup_complete
+def focus_first_workspace():
+    if "1" in qtile.groups_map:
+        qtile.groups_map["1"].cmd_toscreen()
+        qtile.core.warp_pointer(
+            qtile.current_screen.x + qtile.current_screen.width // 2,
+            qtile.current_screen.y + qtile.current_screen.height // 2,
+        )
 
 
 def get_monitors():
@@ -88,7 +105,7 @@ keys = [
     Key([mod], "space", lazy.layout.next()),
     Key([mod], "r", lazy.spawncmd()),
     Key([mod, "shift"], "h", lazy.layout.swap_left()),
-    Key([mod, "shift"], "l", lazy.layout.swap_right()),
+    Key([mod, "shift"], "l", lazy.layout.shuffle_right()),
     Key([mod, "shift"], "j", lazy.layout.shuffle_down()),
     Key([mod, "shift"], "k", lazy.layout.shuffle_up()),
     Key([mod], "i", lazy.layout.grow()),
@@ -97,10 +114,6 @@ keys = [
     Key([mod, "shift"], "n", lazy.layout.normalize()),
     Key([mod], "o", lazy.layout.maximize()),
     Key([mod, "shift"], "space", lazy.layout.flip()),
-    Key([mod, "shift"], "h", lazy.layout.shuffle_left()),
-    Key([mod, "shift"], "l", lazy.layout.shuffle_right()),
-    Key([mod, "shift"], "j", lazy.layout.shuffle_down()),
-    Key([mod, "shift"], "k", lazy.layout.shuffle_up()),
     Key([mod, "shift"], "Return", lazy.layout.toggle_split()),
     Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     Key(
@@ -114,7 +127,12 @@ keys = [
     # Key([mod], "w", lazy.spawn("brave"), desc="Launch Brave Browser"),
     Key([mod, "shift"], "t", lazy.spawn(f"{terminal} -e bpytop"), desc="Launch Bpytop"),
     Key([mod], "d", lazy.spawn("rofi -show drun")),
-    Key([mod], "c", lazy.spawn("python3 " + os.path.expanduser("~/.config/qtile/scripts/clip.py")), desc="Clipboard Manager"),
+    Key(
+        [mod],
+        "c",
+        lazy.spawn("python3 " + os.path.expanduser("~/.config/qtile/scripts/clip.py")),
+        desc="Clipboard Manager",
+    ),
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod, "shift"], "q", lazy.window.kill(), desc="Kill focused window"),
     Key([mod, "control"], "l", lazy.spawn("brightnessctl s 3%+")),
@@ -125,7 +143,14 @@ keys = [
     Key([mod], "Left", lazy.screen.prev_group(), desc="Move to previous workspace"),
     Key([mod], "f", lazy.window.toggle_fullscreen()),
     Key([mod], "t", lazy.window.toggle_floating()),
-    Key([mod, "shift"], "s", lazy.spawn("sh -c 'export XDG_CURRENT_DESKTOP=qtile XDG_SESSION_TYPE=wayland && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user restart xdg-desktop-portal-wlr xdg-desktop-portal'"), desc="Reload screen sharing env"),
+    Key(
+        [mod, "shift"],
+        "s",
+        lazy.spawn(
+            "sh -c 'export XDG_CURRENT_DESKTOP=qtile XDG_SESSION_TYPE=wayland && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user restart xdg-desktop-portal-wlr xdg-desktop-portal'"
+        ),
+        desc="Reload screen sharing env",
+    ),
     KeyChord(
         [mod],
         "x",
@@ -283,29 +308,38 @@ for vt in range(1, 8):
     )
 
 
-colors = [
-    ["#689d6a", "#689d6a"],  # ACTIVE WORKSPACES 0
-    ["#282828", "#282828"],  # INACTIVE WORKSPACES 1
-    ["#504945", "#504945"],  # background lighter 2
-    ["#fb4934", "#fb4934"],  # red 3
-    ["#98971a", "#98971a"],  # green 4
-    ["#d79921", "#d79921"],  # yellow 5
-    ["#83a598", "#83a598"],  # blue 6
-    ["#b16286", "#b16286"],  # magenta 7
-    ["#8ec07c", "#8ec07c"],  # cyan 8
-    ["#ebdbb2", "#ebdbb2"],  # white 9
-    ["#928374", "#928374"],  # grey 10
-    ["#d65d0e", "#d65d0e"],  # orange 11
-    ["#689d6a", "#689d6a"],  # super cyan12
-    ["#458588", "#458588"],  # super blue 13
-    ["#1d2021", "#1d2021"],  # super dark background 14
-]
+colors = {
+    "active": "#689d6a",
+    "inactive": "#282828",
+    "bg_lighter": "#504945",
+    "red": "#fb4934",
+    "green": "#98971a",
+    "yellow": "#d79921",
+    "blue": "#83a598",
+    "magenta": "#b16286",
+    "cyan": "#8ec07c",
+    "white": "#ebdbb2",
+    "grey": "#928374",
+    "orange": "#d65d0e",
+    "super_cyan": "#689d6a",
+    "super_blue": "#458588",
+    "bg_dark": "#1d2021",
+}
+
+
+def get_decoration(color):
+    return [
+        BorderDecoration(
+            border_width=[0, 0, 2, 0],
+            colour=color,
+        )
+    ]
 
 
 layouts = [
     layout.MonadTall(
-        border_focus=colors[12],
-        border_normal=colors[2],
+        border_focus=colors["super_cyan"],
+        border_normal=colors["bg_lighter"],
         border_width=2,
         single_border_width=2,
         margin=7,
@@ -316,8 +350,8 @@ layouts = [
     ),
     layout.Max(
         margin=7,
-        border_focus=colors[8],
-        border_normal=colors[2],
+        border_focus=colors["cyan"],
+        border_normal=colors["bg_lighter"],
         border_width=2,
     ),
 ]
@@ -326,7 +360,7 @@ widget_defaults = dict(
     font="JetBrainsMono Nerd Font Bold",
     fontsize=13,
     padding=0,
-    background=colors[14],
+    background=colors["bg_dark"],
 )
 
 extension_defaults = widget_defaults.copy()
@@ -353,39 +387,39 @@ def init_widgets_list(is_primary=True, visible_groups=None):
             padding_y=0,
             padding_x=4,
             borderwidth=3,
-            active=colors[8],
-            inactive=colors[10],
+            active=colors["cyan"],
+            inactive=colors["grey"],
             rounded=False,
-            highlight_color=colors[2],
+            highlight_color=colors["bg_lighter"],
             highlight_method="line",
-            this_current_screen_border=colors[7],
-            this_screen_border=colors[4],
-            other_current_screen_border=colors[7],
-            other_screen_border=colors[4],
+            this_current_screen_border=colors["magenta"],
+            this_screen_border=colors["green"],
+            other_current_screen_border=colors["magenta"],
+            other_screen_border=colors["green"],
             disable_drag=True,
         ),
         widget.Spacer(length=8),
         widget.CurrentLayoutIcon(
-            foreground=colors[9],
+            foreground=colors["white"],
             padding=4,
             scale=0.75,
         ),
         widget.CurrentLayout(
             fontsize=13,
-            foreground=colors[9],
+            foreground=colors["white"],
             padding=5,
         ),
         widget.TextBox("|", name="sep"),
         widget.Spacer(length=5),
         widget.Prompt(
             font="JetBrainsMono Nerd Font Bold",
-            foreground=colors[4],
+            foreground=colors["green"],
             fontsize=14,
         ),
         widget.Spacer(length=4),
         widget.WindowName(
             fontsize=14,
-            foreground=colors[8],
+            foreground=colors["cyan"],
             max_chars=110,
         ),
         widget.Net(
@@ -394,89 +428,54 @@ def init_widgets_list(is_primary=True, visible_groups=None):
             interface="wlan0",
             padding=0,
             margin=0,
-            foreground=colors[13],
-            decorations=[
-                BorderDecoration(
-                    border_width=[0, 0, 2, 0],
-                    colour=colors[13],
-                )
-            ],
+            foreground=colors["super_blue"],
+            decorations=get_decoration(colors["super_blue"]),
         ),
         widget.Spacer(length=8),
         widget.GenPollText(
             update_interval=60,  # Set the update interval
-            func=lambda: subprocess.check_output([uptime_script])
-            .decode("utf-8")
-            .strip(),
+            func=lambda: (
+                subprocess.check_output([uptime_script]).decode("utf-8").strip()
+            ),
             fmt="󱑀 {}",
-            foreground=colors[4],
-            decorations=[
-                BorderDecoration(
-                    border_width=[0, 0, 2, 0],
-                    colour=colors[4],
-                )
-            ],
+            foreground=colors["green"],
+            decorations=get_decoration(colors["green"]),
         ),
         widget.Spacer(length=8),
         widget.Memory(
             # format="🖥 {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
             format="  {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
-            foreground=colors[7],
-            decorations=[
-                BorderDecoration(
-                    border_width=[0, 0, 2, 0],
-                    colour=colors[7],
-                )
-            ],
+            foreground=colors["magenta"],
+            decorations=get_decoration(colors["magenta"]),
         ),
         widget.Spacer(length=8),
         widget.CPU(
             # format="🗳️ {load_percent}%",
             format="  {load_percent}%",
-            foreground=colors[11],
-            decorations=[
-                BorderDecoration(
-                    border_width=[0, 0, 2, 0],
-                    colour=colors[11],
-                )
-            ],
+            foreground=colors["orange"],
+            decorations=get_decoration(colors["orange"]),
         ),
         widget.Spacer(length=8),
         widget.Battery(
             # format="🔋 {percent:2.0%}", notify_below=97,
             format="  {percent:2.0%}",
             notify_below=10,
-            foreground=colors[12],
-            decorations=[
-                BorderDecoration(
-                    border_width=[0, 0, 2, 0],
-                    colour=colors[12],
-                )
-            ],
+            foreground=colors["super_cyan"],
+            decorations=get_decoration(colors["super_cyan"]),
         ),
         widget.Spacer(length=8),
         widget.Volume(
             # fmt="🔊 {}",
             fmt="  {}",
-            foreground=colors[5],
-            decorations=[
-                BorderDecoration(
-                    border_width=[0, 0, 2, 0],
-                    colour=colors[5],
-                )
-            ],
+            foreground=colors["yellow"],
+            decorations=get_decoration(colors["yellow"]),
         ),
         widget.Spacer(length=8),
         widget.Clock(
             # format="📅 %a, %B %d %l:%M%p",
             format="  %a, %B %d %l:%M%p",
-            foreground=colors[4],
-            decorations=[
-                BorderDecoration(
-                    border_width=[0, 0, 2, 0],
-                    colour=colors[4],
-                )
-            ],
+            foreground=colors["green"],
+            decorations=get_decoration(colors["green"]),
         ),
         widget.Spacer(length=8),
         # consider using StatusNotifier instead for wayland
@@ -495,12 +494,7 @@ screens = [
             ),
             24,
             border_width=[0, 0, 2, 0],  # [top, right, bottom, left]
-            border_color=[
-                colors[14][0],
-                colors[14][0],
-                colors[14][0],
-                colors[14][0],
-            ],
+            border_color=colors["bg_dark"],
         ),
         left=bar.Gap(10),
         right=bar.Gap(10),
@@ -515,12 +509,7 @@ if monitors > 1:
                 init_widgets_list(is_primary=False, visible_groups=group_names[:4]),
                 24,
                 border_width=[0, 0, 2, 0],  # [top, right, bottom, left]
-                border_color=[
-                    colors[14][0],
-                    colors[14][0],
-                    colors[14][0],
-                    colors[14][0],
-                ],
+                border_color=colors["bg_dark"],
             ),
             left=bar.Gap(10),
             right=bar.Gap(10),
@@ -562,10 +551,11 @@ floating_layout = layout.Floating(
         Match(title="branchdialog"),  # gitk
         Match(title="pinentry"),  # GPG key password entry
     ],
-    border_focus=colors[8],
-    border_normal=colors[2],
+    border_focus=colors["cyan"],
+    border_normal=colors["bg_lighter"],
     border_width=2,
 )
+
 auto_fullscreen = True
 focus_on_window_activation = "smart"
 reconfigure_screens = True

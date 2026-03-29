@@ -1,6 +1,7 @@
-from libqtile import qtile
 from pathlib import Path
 from typing import Any
+
+from libqtile import qtile
 
 MOD = "mod4"
 TERMINAL = "kitty"

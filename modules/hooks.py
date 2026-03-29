@@ -1,7 +1,9 @@
 import asyncio
 import subprocess
+
 from libqtile import hook, qtile
-from .settings import QTILE_CONF, IS_WAYLAND
+
+from .settings import IS_WAYLAND, QTILE_CONF
 
 
 @hook.subscribe.startup_once

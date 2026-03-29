@@ -1,7 +1,8 @@
-from libqtile.config import Group, ScratchPad, DropDown, Key
+from libqtile.config import DropDown, Group, Key, ScratchPad
 from libqtile.lazy import lazy
-from .settings import MOD, TERMINAL, IS_WAYLAND, GROUPS_CONF
+
 from .keys import keys
+from .settings import GROUPS_CONF, MOD, TERMINAL
 
 
 def get_groups(num_monitors):

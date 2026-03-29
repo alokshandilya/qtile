@@ -1,8 +1,8 @@
-from libqtile import qtile, bar
+from libqtile import qtile
 from qtile_extras import widget
 from qtile_extras.widget.decorations import BorderDecoration
-from .settings import COLORS, TERMINAL, IS_WAYLAND
 
+from .settings import COLORS, IS_WAYLAND, TERMINAL
 
 # Pre-generate decorations to avoid object instantiation overhead during reloads
 DECORATIONS = {

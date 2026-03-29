@@ -1,19 +1,17 @@
 import gc
-from libqtile import qtile, bar
-from libqtile.config import Screen, Key
-from libqtile.lazy import lazy
 from pathlib import Path
+
+from libqtile import bar, qtile
+from libqtile.config import Key, Screen
+from libqtile.lazy import lazy
+
+from modules.groups import ScratchPad, get_groups, init_group_bindings
+from modules.keys import keys
+from modules.settings import COLORS, IS_WAYLAND, InputConfig
+from modules.widgets import init_widgets_list
 
 # Tune Garbage Collection for lower latency
 gc.set_threshold(1500, 15, 15)
-
-# Import modular components
-from modules.settings import COLORS, IS_WAYLAND, InputConfig
-from modules.keys import keys
-from modules.groups import get_groups, init_group_bindings, ScratchPad
-from modules.layouts import layouts, floating_layout
-from modules.widgets import widget_defaults, init_widgets_list
-import modules.hooks  # Ensures hooks are registered
 
 
 # --- Monitor Detection ---

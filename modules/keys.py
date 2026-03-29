@@ -1,6 +1,7 @@
 from libqtile.config import Key, KeyChord
 from libqtile.lazy import lazy
-from .settings import MOD, TERMINAL, GPU_PREFIX, SCRIPTS_PATH, IS_WAYLAND
+
+from .settings import GPU_PREFIX, IS_WAYLAND, MOD, SCRIPTS_PATH, TERMINAL
 
 keys = [
     Key([MOD], "h", lazy.layout.left(), desc="Move focus to left"),

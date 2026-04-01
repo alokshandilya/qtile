@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "AUTOSTART SCRIPT STARTED" >> /tmp/qtile-autostart.log 2>&1
+
 # Check if running under X11
 if [ "$XDG_SESSION_TYPE" = "x11" ]; then
   setxkbmap -option caps:escape &

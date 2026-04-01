@@ -1,4 +1,4 @@
-from libqtile import qtile
+from libqtile import bar, qtile
 from qtile_extras import widget
 from qtile_extras.widget.decorations import BorderDecoration
 
@@ -70,9 +70,19 @@ def init_widgets_list(visible_groups=None, is_primary=True):
             disable_drag=True,
         ),
         get_spacer(),
-        widget.CurrentLayoutIcon(foreground=COLORS["white"], padding=4, scale=0.75),
-        widget.CurrentLayout(fontsize=13, foreground=COLORS["white"], padding=5),
-        get_sep(),
+        widget.CurrentLayoutIcon(
+            foreground=COLORS["white"],
+            padding=4,
+            scale=0.75,
+            font=widget_defaults["font"],
+        ),
+        widget.CurrentLayout(
+            fontsize=13,
+            foreground=COLORS["white"],
+            padding=5,
+            font=widget_defaults["font"],
+        ),
+        widget.TextBox("|", name="sep", font=widget_defaults["font"]),
     ]
 
     if is_primary:
@@ -86,14 +96,18 @@ def init_widgets_list(visible_groups=None, is_primary=True):
                 ),
                 get_spacer(4),
                 widget.WindowName(
-                    fontsize=14, foreground=COLORS["cyan"], max_chars=110
+                    fontsize=14,
+                    foreground=COLORS["cyan"],
+                    max_chars=110,
+                    font=widget_defaults["font"],
                 ),
                 widget.Net(
                     format=" {down:.0f}{down_suffix}  {up:.0f}{up_suffix}",
                     interface="wlan0",
                     foreground=COLORS["super_blue"],
                     decorations=DECORATIONS["super_blue"],
-                    update_interval=2,
+                    update_interval=5,
+                    font=widget_defaults["font"],
                 ),
                 get_spacer(),
                 widget.GenPollText(
@@ -102,20 +116,23 @@ def init_widgets_list(visible_groups=None, is_primary=True):
                     fmt="󱑀 {}",
                     foreground=COLORS["green"],
                     decorations=DECORATIONS["green"],
+                    font=widget_defaults["font"],
                 ),
                 get_spacer(),
                 widget.Memory(
                     format="  {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
                     foreground=COLORS["magenta"],
                     decorations=DECORATIONS["magenta"],
-                    update_interval=3,
+                    update_interval=5,
+                    font=widget_defaults["font"],
                 ),
                 get_spacer(),
                 widget.CPU(
                     format="  {load_percent}%",
                     foreground=COLORS["orange"],
                     decorations=DECORATIONS["orange"],
-                    update_interval=2,
+                    update_interval=5,
+                    font=widget_defaults["font"],
                 ),
                 get_spacer(),
                 widget.Battery(
@@ -124,17 +141,28 @@ def init_widgets_list(visible_groups=None, is_primary=True):
                     foreground=COLORS["super_cyan"],
                     decorations=DECORATIONS["super_cyan"],
                     update_interval=30,
+                    font=widget_defaults["font"],
                 ),
                 get_spacer(),
                 widget.Volume(
                     fmt="  {}",
                     foreground=COLORS["yellow"],
                     decorations=DECORATIONS["yellow"],
+                    update_interval=1,
+                    font=widget_defaults["font"],
                 ),
             ]
         )
     else:
-        widgets.append(widget.Spacer())
+        widgets.append(
+            widget.WindowName(
+                fontsize=14,
+                foreground=COLORS["cyan"],
+                max_chars=110,
+                font=widget_defaults["font"],
+                width=bar.STRETCH,
+            )
+        )
 
     widgets.extend(
         [
@@ -143,7 +171,8 @@ def init_widgets_list(visible_groups=None, is_primary=True):
                 format="  %a, %B %d %l:%M%p",
                 foreground=COLORS["green"],
                 decorations=DECORATIONS["green"],
-                update_interval=10,
+                update_interval=60,
+                font=widget_defaults["font"],
             ),
             get_spacer(),
             widget.StatusNotifier() if IS_WAYLAND else widget.Systray(),

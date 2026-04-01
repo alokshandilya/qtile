@@ -9,6 +9,8 @@ from modules.groups import ScratchPad, get_groups, init_group_bindings
 from modules.keys import keys
 from modules.settings import COLORS, IS_WAYLAND, InputConfig
 from modules.widgets import init_widgets_list
+import modules.hooks
+from modules.layouts import layouts, floating_layout
 
 # Tune Garbage Collection for lower latency
 gc.set_threshold(1500, 15, 15)
@@ -48,6 +50,7 @@ def create_screen(visible_groups=None, is_primary=True):
         top=bar.Bar(
             init_widgets_list(visible_groups=visible_groups, is_primary=is_primary),
             24,
+            background=COLORS["bg_dark"],
             border_width=[0, 0, 2, 0],
             border_color=COLORS["bg_dark"],
         ),
@@ -79,6 +82,7 @@ focus_on_window_activation = "smart"
 reconfigure_screens = True
 auto_minimize = True
 wmname = "LG3D"
+
 # --- Backend Specific ---
 if IS_WAYLAND:
     wl_input_rules = {

@@ -50,6 +50,9 @@ def main():
     if not lines:
         return
 
+    # Process only the first 250 items for faster load times
+    lines = lines[:250]
+
     # 2. Process items for Rofi
     rofi_lines = []
     for line in lines:

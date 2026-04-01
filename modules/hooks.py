@@ -10,7 +10,10 @@ from .settings import IS_WAYLAND, QTILE_CONF
 def autostart():
     autostart_sh = QTILE_CONF / "autostart.sh"
     if autostart_sh.exists():
+        print(f"Executing autostart script: {autostart_sh}")
         subprocess.Popen([str(autostart_sh)])
+    else:
+        print(f"Autostart script not found: {autostart_sh}")
 
 
 @hook.subscribe.startup_complete

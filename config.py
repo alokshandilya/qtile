@@ -6,11 +6,11 @@ from libqtile.config import Key, Screen
 from libqtile.lazy import lazy
 
 from modules.groups import ScratchPad, get_groups, init_group_bindings
+from modules.layouts import floating_layout, layouts
 from modules.keys import keys
 from modules.settings import COLORS, IS_WAYLAND, InputConfig
 from modules.widgets import init_widgets_list
-import modules.hooks
-from modules.layouts import layouts, floating_layout
+import modules.hooks  # noqa: F401
 
 # Tune Garbage Collection for lower latency
 gc.set_threshold(1500, 15, 15)

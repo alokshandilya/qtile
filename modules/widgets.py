@@ -1,14 +1,8 @@
-from libqtile import bar, qtile
-from qtile_extras import widget
+from libqtile import bar, qtile, widget
+from qtile_extras import widget as extra_widget
 from qtile_extras.widget.decorations import BorderDecoration
 
 from .settings import COLORS, IS_WAYLAND, TERMINAL
-
-# Pre-generate decorations to avoid object instantiation overhead during reloads
-DECORATIONS = {
-    name: [BorderDecoration(border_width=[0, 0, 2, 0], colour=color)]
-    for name, color in COLORS.items()
-}
 
 
 def get_sep():
@@ -29,6 +23,12 @@ def get_uptime():
             return f"{int(h)}h {int(m)}m"
     except Exception:
         return "N/A"
+
+
+DECORATIONS = {
+    name: [BorderDecoration(border_width=[0, 0, 2, 0], colour=color)]
+    for name, color in COLORS.items()
+}
 
 
 widget_defaults = dict(
@@ -70,7 +70,7 @@ def init_widgets_list(visible_groups=None, is_primary=True):
             disable_drag=True,
         ),
         get_spacer(),
-        widget.CurrentLayoutIcon(
+        extra_widget.CurrentLayoutIcon(
             foreground=COLORS["white"],
             padding=4,
             scale=0.75,
@@ -101,7 +101,7 @@ def init_widgets_list(visible_groups=None, is_primary=True):
                     max_chars=110,
                     font=widget_defaults["font"],
                 ),
-                widget.Net(
+                extra_widget.Net(
                     format=" {down:.0f}{down_suffix}  {up:.0f}{up_suffix}",
                     interface="wlan0",
                     foreground=COLORS["super_blue"],
@@ -110,7 +110,7 @@ def init_widgets_list(visible_groups=None, is_primary=True):
                     font=widget_defaults["font"],
                 ),
                 get_spacer(),
-                widget.GenPollText(
+                extra_widget.GenPollText(
                     update_interval=60,
                     func=get_uptime,
                     fmt="󱑀 {}",
@@ -119,7 +119,7 @@ def init_widgets_list(visible_groups=None, is_primary=True):
                     font=widget_defaults["font"],
                 ),
                 get_spacer(),
-                widget.Memory(
+                extra_widget.Memory(
                     format="  {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}",
                     foreground=COLORS["magenta"],
                     decorations=DECORATIONS["magenta"],
@@ -127,7 +127,7 @@ def init_widgets_list(visible_groups=None, is_primary=True):
                     font=widget_defaults["font"],
                 ),
                 get_spacer(),
-                widget.CPU(
+                extra_widget.CPU(
                     format="  {load_percent}%",
                     foreground=COLORS["orange"],
                     decorations=DECORATIONS["orange"],
@@ -135,7 +135,7 @@ def init_widgets_list(visible_groups=None, is_primary=True):
                     font=widget_defaults["font"],
                 ),
                 get_spacer(),
-                widget.Battery(
+                extra_widget.Battery(
                     format="  {percent:2.0%}",
                     notify_below=10,
                     foreground=COLORS["super_cyan"],
@@ -144,7 +144,7 @@ def init_widgets_list(visible_groups=None, is_primary=True):
                     font=widget_defaults["font"],
                 ),
                 get_spacer(),
-                widget.Volume(
+                extra_widget.Volume(
                     fmt="  {}",
                     foreground=COLORS["yellow"],
                     decorations=DECORATIONS["yellow"],
@@ -167,7 +167,7 @@ def init_widgets_list(visible_groups=None, is_primary=True):
     widgets.extend(
         [
             get_spacer(),
-            widget.Clock(
+            extra_widget.Clock(
                 format="  %a, %B %d %l:%M%p",
                 foreground=COLORS["green"],
                 decorations=DECORATIONS["green"],

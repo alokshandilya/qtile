@@ -2,9 +2,9 @@ from libqtile.config import DropDown, Group, Key, ScratchPad
 from libqtile.lazy import lazy
 
 from .keys import keys
-from .settings import GROUPS_CONF, IS_WAYLAND, MOD, TERMINAL
+from .settings import GROUPS_CONF, IS_WAYLAND, MOD, QTILE_CONF, TERMINAL
 
-groups_1_to_4_on_external = True
+groups_5_to_8_on_external = True
 
 
 def _get_laptop_and_external_screens(qtile):
@@ -38,7 +38,7 @@ def _set_laptop_groupbox_visibility(qtile):
     if not getattr(screen, "top", None):
         return
 
-    visible_groups = ["5", "6", "7", "8"] if groups_1_to_4_on_external else None
+    visible_groups = ["1", "2", "3", "4"] if groups_5_to_8_on_external else None
 
     for wid in screen.top.widgets:
         if wid.__class__.__name__ == "GroupBox":
@@ -48,14 +48,14 @@ def _set_laptop_groupbox_visibility(qtile):
 
 
 def get_groups(num_monitors):
-    global groups_1_to_4_on_external
-    groups_1_to_4_on_external = num_monitors > 1
+    global groups_5_to_8_on_external
+    groups_5_to_8_on_external = num_monitors > 1
 
     groups = [
         Group(
             name=name,
             label=label,
-            screen_affinity=1 if (i < 4 and num_monitors > 1) else 0,
+            screen_affinity=1 if (i >= 4 and num_monitors > 1) else 0,
         )
         for i, (name, label) in enumerate(GROUPS_CONF)
     ]
@@ -77,7 +77,7 @@ def get_groups(num_monitors):
                 ),
                 DropDown(
                     "chatgpt",
-                    "firefox -new-window 'https://chatgpt.com'",
+                    "zen-browser --new-window 'https://chatgpt.com'",
                     x=0.2825,
                     y=0.015,
                     width=0.435,
@@ -96,7 +96,7 @@ def go_to_group(name):
         laptop_screen, external_screen = _get_laptop_and_external_screens(qtile)
         target_screen = laptop_screen
 
-        if name in "1234" and groups_1_to_4_on_external and external_screen is not None:
+        if name in "5678" and groups_5_to_8_on_external and external_screen is not None:
             target_screen = external_screen
 
         qtile.to_screen(target_screen)
@@ -113,7 +113,7 @@ def go_to_group_and_move_window(name):
         laptop_screen, external_screen = _get_laptop_and_external_screens(qtile)
         target_screen = laptop_screen
 
-        if name in "1234" and groups_1_to_4_on_external and external_screen is not None:
+        if name in "5678" and groups_5_to_8_on_external and external_screen is not None:
             target_screen = external_screen
 
         qtile.current_window.togroup(name, switch_group=False)
@@ -123,14 +123,14 @@ def go_to_group_and_move_window(name):
     return _inner
 
 
-def set_workspace_1_to_4_screen(one_to_four_screen):
+def set_workspace_5_to_8_screen(five_to_eight_screen):
     def _inner(qtile):
-        global groups_1_to_4_on_external
+        global groups_5_to_8_on_external
 
         laptop_screen, external_screen = _get_laptop_and_external_screens(qtile)
 
         if external_screen is None:
-            groups_1_to_4_on_external = False
+            groups_5_to_8_on_external = False
             for name in "12345678":
                 if name in qtile.groups_map:
                     qtile.groups_map[name].toscreen(laptop_screen)
@@ -139,22 +139,22 @@ def set_workspace_1_to_4_screen(one_to_four_screen):
             qtile.groups_map["1"].toscreen(laptop_screen)
             return
 
-        groups_1_to_4_on_external = one_to_four_screen == 1
-        one_to_four_target = (
-            external_screen if groups_1_to_4_on_external else laptop_screen
+        groups_5_to_8_on_external = five_to_eight_screen == 1
+        five_to_eight_target = (
+            external_screen if groups_5_to_8_on_external else laptop_screen
         )
 
-        for name in "1234":
-            if name in qtile.groups_map:
-                qtile.groups_map[name].toscreen(one_to_four_target)
-
         for name in "5678":
+            if name in qtile.groups_map:
+                qtile.groups_map[name].toscreen(five_to_eight_target)
+
+        for name in "1234":
             if name in qtile.groups_map:
                 qtile.groups_map[name].toscreen(laptop_screen)
 
         _set_laptop_groupbox_visibility(qtile)
-        qtile.to_screen(one_to_four_target)
-        qtile.groups_map["1"].toscreen(one_to_four_target)
+        qtile.to_screen(five_to_eight_target)
+        qtile.groups_map["5"].toscreen(five_to_eight_target)
 
     return _inner
 
@@ -187,16 +187,24 @@ def init_group_bindings(groups):
             Key(
                 [MOD, "control"],
                 "1",
-                lazy.function(set_workspace_1_to_4_screen(0)),
+                lazy.function(set_workspace_5_to_8_screen(0)),
                 # Use when external monitor is connected but unavailable (e.g. power cut): keep all workspaces on laptop.
                 desc="Move workspaces 1-8 to laptop screen",
             ),
             Key(
                 [MOD, "control"],
                 "2",
-                lazy.function(set_workspace_1_to_4_screen(1)),
-                # Use when external monitor is back: move workspaces 1-4 back to external monitor.
-                desc="Move workspaces 1-4 to external screen",
+                lazy.function(set_workspace_5_to_8_screen(1)),
+                # Use when external monitor is back: move workspaces 5-8 back to external monitor.
+                desc="Move workspaces 5-8 to external screen",
+            ),
+            Key(
+                [MOD, "control"],
+                "0",
+                # Docked-mode toggle: this laptop's firmware never reports lid
+                # events, so press this before closing / after opening the lid.
+                lazy.spawn(str(QTILE_CONF / "toggle-internal-screen.sh")),
+                desc="Toggle laptop screen (docked mode)",
             ),
         ]
     )

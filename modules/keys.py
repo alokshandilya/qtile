@@ -58,7 +58,7 @@ keys = [
         [MOD, "shift"],
         "s",
         lazy.spawn(
-            "sh -c 'export XDG_CURRENT_DESKTOP=qtile XDG_SESSION_TYPE=wayland && dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user restart xdg-desktop-portal-wlr xdg-desktop-portal'"
+            "sh -c 'dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user restart xdg-desktop-portal-wlr xdg-desktop-portal'"
         )
         if IS_WAYLAND
         else lazy.spawn("flameshot gui"),

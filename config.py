@@ -1,5 +1,10 @@
 import gc
+import os
 from pathlib import Path
+
+# Must be in qtile's own environment so every spawned app inherits it —
+# exporting it in autostart.sh only reaches that script's subshell.
+os.environ.setdefault("XDG_CURRENT_DESKTOP", "qtile:wlroots")
 
 from libqtile import bar, qtile
 from libqtile.config import Key, Screen
@@ -17,12 +22,19 @@ gc.set_threshold(1500, 15, 15)
 
 
 # --- Monitor Detection ---
+DOCKED_FLAG = Path("/tmp/qtile-docked-mode")
+
+
 def get_monitors():
-    if IS_WAYLAND:
-        try:
-            return len(qtile.core.outputs)
-        except Exception:
-            pass
+    # Docked mode (laptop panel intentionally off via MOD+Ctrl+0): the flag
+    # file is the source of truth, because nothing else works from inside a
+    # config load: wlr-randr DEADLOCKS (it's a wayland client asking the
+    # compositor whose loop is busy executing this file), and the DRM
+    # connector count below can't see a disabled-but-connected panel.
+    # Reloading with this returning 1 keeps the panel off; with 2 a reload
+    # re-enables it — both are what we want for the respective states.
+    if DOCKED_FLAG.exists():
+        return 1
 
     try:
         count = sum(
@@ -60,14 +72,16 @@ def create_screen(visible_groups=None, is_primary=True):
     )
 
 
+# With one monitor (incl. docked mode) a single screen gets the primary bar
+# with all its widgets and every group; with two, the classic 1-4 / 5-8 split.
 screens = [
     create_screen(
-        visible_groups=group_names[4:] if num_monitors > 1 else None, is_primary=True
+        visible_groups=group_names[:4] if num_monitors > 1 else None, is_primary=True
     )
 ]
 
 if num_monitors > 1:
-    screens.append(create_screen(visible_groups=group_names[:4], is_primary=False))
+    screens.append(create_screen(visible_groups=group_names[4:], is_primary=False))
 
 # --- General Settings ---
 mouse = []
@@ -90,6 +104,11 @@ if IS_WAYLAND:
             tap=True,
             natural_scroll=True,
             left_handed=False,
+        ),
+        "type:pointer": InputConfig(
+            accel_profile="flat",
+            pointer_accel=-0.15,
+            natural_scroll=True,
         ),
         "type:keyboard": InputConfig(
             kb_options="caps:escape,compose:ralt",

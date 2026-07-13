@@ -38,7 +38,7 @@ if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
   # 3. Background Apps
   wl-paste --type text --watch cliphist store &
   wl-paste --type image --watch cliphist store &
-  mako &
+  swaync &
   kanshi &
   nm-applet --indicator &
   awww-daemon &

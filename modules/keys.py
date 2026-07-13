@@ -95,5 +95,13 @@ if IS_WAYLAND:
     keys.append(
         Key([], "print", lazy.spawn("sh -c 'grim -g \"$(slurp)\" - | wl-copy'"))
     )
+    keys.append(
+        Key(
+            [MOD],
+            "a",
+            lazy.spawn("swaync-client -t -sw"),
+            desc="Toggle notification center",
+        )
+    )
 else:
     keys.append(Key([], "print", lazy.spawn("flameshot gui")))

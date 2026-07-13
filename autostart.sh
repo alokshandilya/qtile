@@ -21,9 +21,13 @@ if [ "$XDG_SESSION_TYPE" = "x11" ]; then
 fi
 
 if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+  # Stale docked-mode flag from a previous session would make get_monitors()
+  # report 1 monitor even though a fresh compositor enables all outputs.
+  rm -f /tmp/qtile-docked-mode
+
   # 1. Essential Environment Setup
-  # We export the variables and tell DBus/Systemd about them immediately
-  export XDG_CURRENT_DESKTOP=qtile
+  # XDG_CURRENT_DESKTOP is set in config.py (qtile's own env) and inherited here;
+  # push it plus WAYLAND_DISPLAY to DBus/systemd activation environments
   dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
   
   systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP

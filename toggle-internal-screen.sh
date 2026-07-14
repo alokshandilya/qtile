@@ -73,6 +73,11 @@ for i in $(seq 1 "$MAX_SECONDS"); do
   if [ "${now% *}" = "$target" ]; then
     stable=$((stable + 1))
     if [ "$stable" -ge "$STABLE_SECONDS" ]; then
+      # xdg-desktop-portal-wlr enumerates outputs once at startup, so screen
+      # sharing breaks after any output change until it restarts. Restart only
+      # the backend: restarting the frontend (xdg-desktop-portal) severs
+      # running apps' portal connections until they're relaunched.
+      systemctl --user restart xdg-desktop-portal-wlr
       if [ "$target" = "off" ]; then
         notify "Laptop screen OFF — workspaces on external monitor"
       else

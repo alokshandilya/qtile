@@ -54,16 +54,6 @@ keys = [
     Key([MOD], "Left", lazy.screen.prev_group(), desc="Move to previous workspace"),
     Key([MOD], "f", lazy.window.toggle_fullscreen()),
     Key([MOD], "t", lazy.window.toggle_floating()),
-    Key(
-        [MOD, "shift"],
-        "s",
-        lazy.spawn(
-            "sh -c 'dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user restart xdg-desktop-portal-wlr xdg-desktop-portal'"
-        )
-        if IS_WAYLAND
-        else lazy.spawn("flameshot gui"),
-        desc="Screen sharing fix or screenshot",
-    ),
     KeyChord(
         [MOD],
         "x",
@@ -105,3 +95,6 @@ if IS_WAYLAND:
     )
 else:
     keys.append(Key([], "print", lazy.spawn("flameshot gui")))
+    keys.append(
+        Key([MOD, "shift"], "s", lazy.spawn("flameshot gui"), desc="Screenshot")
+    )

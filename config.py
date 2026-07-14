@@ -112,8 +112,8 @@ if IS_WAYLAND:
         ),
         "type:keyboard": InputConfig(
             kb_options="caps:escape,compose:ralt",
-            kb_repeat_rate=40,
-            kb_repeat_delay=210,
+            kb_repeat_rate=30,
+            kb_repeat_delay=350,
         ),
     }
     wl_xcursor_theme = "Qogir-manjaro-light"

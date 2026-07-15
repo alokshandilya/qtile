@@ -73,6 +73,10 @@ for i in $(seq 1 "$MAX_SECONDS"); do
   if [ "${now% *}" = "$target" ]; then
     stable=$((stable + 1))
     if [ "$stable" -ge "$STABLE_SECONDS" ]; then
+      if [ "$target" = "on" ]; then
+        # Re-assert layout: the MAIN display (workspaces 1-4) sits on the left.
+        "$(dirname "$0")/scripts/set-output-layout.sh"
+      fi
       # xdg-desktop-portal-wlr enumerates outputs once at startup, so screen
       # sharing breaks after any output change until it restarts. Restart only
       # the backend: restarting the frontend (xdg-desktop-portal) severs
@@ -81,7 +85,7 @@ for i in $(seq 1 "$MAX_SECONDS"); do
       if [ "$target" = "off" ]; then
         notify "Laptop screen OFF — workspaces on external monitor"
       else
-        notify "Laptop screen ON — workspaces 1-4 back on internal"
+        notify "Laptop screen ON — workspaces 5-8 back on internal"
       fi
       exit 0
     fi

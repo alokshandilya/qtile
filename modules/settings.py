@@ -11,6 +11,20 @@ QTILE_CONF = HOME / ".config" / "qtile"
 SCRIPTS_PATH = QTILE_CONF / "scripts"
 IS_WAYLAND = qtile.core.name == "wayland"
 
+# Which monitor hosts workspaces 1-4. That monitor is the MAIN display: it
+# gets the full widget bar; the other one gets workspaces 5-8 and a minimal
+# bar (workspaces + clock). Set to "external" or "internal" and reload
+# (MOD+X, R) to swap — or press MOD+Ctrl+3 to swap on the fly.
+WORKSPACES_1_TO_4_ON = "external"
+
+# MOD+Ctrl+3 (groups.py) writes the override here and reloads; it wins over
+# the default above until reboot (/tmp is wiped on boot).
+_MAIN_DISPLAY_OVERRIDE = Path("/tmp/qtile-main-display")
+if _MAIN_DISPLAY_OVERRIDE.exists():
+    _override = _MAIN_DISPLAY_OVERRIDE.read_text().strip()
+    if _override in ("external", "internal"):
+        WORKSPACES_1_TO_4_ON = _override
+
 # Workspaces config
 GROUPS_CONF = [
     ("1", "󰎤"),

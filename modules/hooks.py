@@ -18,14 +18,16 @@ def autostart():
 
 @hook.subscribe.startup_complete
 def focus_first_workspace():
-    if "1" in qtile.groups_map:
-        group = qtile.groups_map["1"]
-        group.toscreen()
-        screen = qtile.current_screen
-        qtile.core.warp_pointer(
-            screen.x + screen.width // 2,
-            screen.y + screen.height // 2,
-        )
+    # Place groups by actual output identity (laptop panel detected by name),
+    # not by static screen_affinity, which assumes a fixed screen order.
+    from .groups import set_workspace_split
+
+    set_workspace_split(1)(qtile)
+    screen = qtile.current_screen
+    qtile.core.warp_pointer(
+        screen.x + screen.width // 2,
+        screen.y + screen.height // 2,
+    )
 
 
 _screen_task = None
@@ -75,5 +77,13 @@ def screen_change(event):
         for scr in qtile.screens:
             if scr.top:
                 scr.top.draw()
+
+        # Re-assert group placement after the reload: screen indices can
+        # change with the output layout, so place groups by output identity.
+        # Import resolves to the freshly reloaded module, whose state the
+        # new keybindings read.
+        from .groups import set_workspace_split
+
+        set_workspace_split(1)(qtile)
 
     _screen_task = asyncio.create_task(reload_after_settle())

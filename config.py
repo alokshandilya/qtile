@@ -13,7 +13,7 @@ from libqtile.lazy import lazy
 from modules.groups import ScratchPad, get_groups, init_group_bindings
 from modules.layouts import floating_layout, layouts
 from modules.keys import keys
-from modules.settings import COLORS, IS_WAYLAND, InputConfig
+from modules.settings import COLORS, IS_WAYLAND, WORKSPACES_1_TO_4_ON, InputConfig
 from modules.widgets import init_widgets_list
 import modules.hooks  # noqa: F401
 
@@ -73,15 +73,23 @@ def create_screen(visible_groups=None, is_primary=True):
 
 
 # With one monitor (incl. docked mode) a single screen gets the primary bar
-# with all its widgets and every group; with two, the classic 1-4 / 5-8 split.
-screens = [
-    create_screen(
-        visible_groups=group_names[:4] if num_monitors > 1 else None, is_primary=True
-    )
-]
+# with all its widgets and every group. With two, WORKSPACES_1_TO_4_ON decides
+# which monitor is MAIN (groups 1-4 + full bar); the other gets 5-8 and a
+# minimal bar. Screen 0 is the laptop panel (it enumerates first).
+main_is_laptop = WORKSPACES_1_TO_4_ON == "internal"
 
 if num_monitors > 1:
-    screens.append(create_screen(visible_groups=group_names[4:], is_primary=False))
+    laptop_groups, external_groups = (
+        (group_names[:4], group_names[4:])
+        if main_is_laptop
+        else (group_names[4:], group_names[:4])
+    )
+    screens = [
+        create_screen(visible_groups=laptop_groups, is_primary=main_is_laptop),
+        create_screen(visible_groups=external_groups, is_primary=not main_is_laptop),
+    ]
+else:
+    screens = [create_screen(visible_groups=None, is_primary=True)]
 
 # --- General Settings ---
 mouse = []

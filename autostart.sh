@@ -35,6 +35,10 @@ if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
   systemctl --user restart xdg-desktop-portal
   gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
 
+  # 2. Output layout: the MAIN display (workspaces 1-4) sits on the left.
+  # Fails harmlessly when the external isn't connected.
+  "$HOME/.config/qtile/scripts/set-output-layout.sh" 2>/dev/null &
+
   # 3. Background Apps
   wl-paste --type text --watch cliphist store &
   wl-paste --type image --watch cliphist store &

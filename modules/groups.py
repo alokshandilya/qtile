@@ -197,6 +197,14 @@ def set_workspace_split(enabled):
     return _inner
 
 
+def restore_split_and_layout(qtile):
+    """MOD+Ctrl+2: assert monitor positions (main on the left), then restore
+    the workspace split. Keypress-only — never called from hooks, so it
+    cannot re-trigger itself via screen_change events."""
+    subprocess.Popen([str(QTILE_CONF / "scripts" / "set-output-layout.sh")])
+    set_workspace_split(1)(qtile)
+
+
 def swap_main_display(qtile):
     """Flip which monitor is MAIN (workspaces 1-4 + full bar) on the fly."""
     new_value = "internal" if ONE_TO_FOUR_ON_EXTERNAL else "external"
@@ -252,9 +260,10 @@ def init_group_bindings(groups):
             Key(
                 [MOD, "control"],
                 "2",
-                lazy.function(set_workspace_split(1)),
-                # Use when external monitor is back: restore the 1-4 / 5-8 split.
-                desc="Restore workspace split across monitors",
+                lazy.function(restore_split_and_layout),
+                # Use when external monitor is back (re-plug/power back):
+                # positions it on the correct side and restores the split.
+                desc="Restore monitor layout and workspace split",
             ),
             Key(
                 [MOD, "control"],

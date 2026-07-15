@@ -40,6 +40,12 @@ def screen_change(event):
         _screen_task.cancel()
 
     async def reload_after_settle():
+        # NOTE: do NOT run set-output-layout.sh (or any wlr-randr call) from
+        # this hook. Its apply re-triggers screen_change on this machine's
+        # flaky DRM, producing an endless reload loop (config reload every
+        # ~2.7s, visible input lag). Positions are asserted only from
+        # explicit actions: boot, dock toggle, MOD+Ctrl+2/3.
+
         # Settle first: this machine's DRM driver retries/rolls back atomic
         # commits, and reloading mid-churn configures bar widgets against
         # dead drawing surfaces.

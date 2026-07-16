@@ -61,6 +61,12 @@ keys = [
             Key([], "r", lazy.reload_config()),
             Key([], "x", lazy.shutdown()),
             Key([], "p", lazy.spawn("shutdown -h now")),
+            # Suspend: external keyboard wakes it with the lid closed. KNOWN
+            # ISSUE on this machine: wlroots fails to disable the CRTCs at
+            # suspend entry and the qtile session dies — every suspend is a
+            # relogin. Verified unfixable via config (deep & s2idle, docked &
+            # undocked, PSR on/off — identical crash). Upstream bug.
+            Key([], "s", lazy.spawn("systemctl suspend")),
         ],
     ),
     KeyChord([MOD], "b", [Key([], "m", lazy.spawn("blueman-manager"))]),
@@ -71,11 +77,19 @@ keys = [
             Key([], "f", lazy.spawn("thunar")),
         ],
     ),
+    # --password-store: Claude Desktop keeps auth in gnome-keyring
+    # (see ~/.local/share/applications/com.anthropic.Claude.desktop)
+    Key(
+        [MOD, "shift"],
+        "c",
+        lazy.spawn("claude-desktop --password-store=gnome-libsecret"),
+        desc="Launch Claude Desktop",
+    ),
+    Key([MOD], "s", lazy.spawn("spotify-launcher"), desc="Launch Spotify"),
     KeyChord(
         [MOD],
         "v",
         [
-            Key([], "c", lazy.spawn(f"env {GPU_PREFIX} code")),
             Key([], "v", lazy.spawn("pavucontrol")),
         ],
     ),

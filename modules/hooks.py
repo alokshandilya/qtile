@@ -28,6 +28,10 @@ def focus_first_workspace():
         screen.x + screen.width // 2,
         screen.y + screen.height // 2,
     )
+    # One conky per monitor (script focuses each screen to place the layer
+    # surface, then restores focus). Popen: it calls back into qtile via
+    # cmd-obj, so it must not block this hook.
+    subprocess.Popen([str(QTILE_CONF / "scripts" / "restart-conky.sh")])
 
 
 _screen_task = None
@@ -91,5 +95,10 @@ def screen_change(event):
         from .groups import set_workspace_split
 
         set_workspace_split(1)(qtile)
+
+        # Re-spread conky across the monitors that now exist. Launching layer
+        # surfaces does not fire screen_change, so this cannot loop (unlike
+        # wlr-randr calls — see the warning above).
+        subprocess.Popen([str(QTILE_CONF / "scripts" / "restart-conky.sh")])
 
     _screen_task = asyncio.create_task(reload_after_settle())

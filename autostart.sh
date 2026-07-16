@@ -46,6 +46,7 @@ if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
   kanshi &
   nm-applet --indicator &
   awww-daemon &
+  # conky is launched per-monitor by hooks.py (restart-conky.sh), not here.
   /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
   gnome-keyring-daemon --start --components=secrets &
 fi
